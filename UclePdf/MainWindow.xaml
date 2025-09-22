@@ -35,107 +35,140 @@
         <vm:MainViewModel />
     </Window.DataContext>
     <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
-        <Grid>
-            <ScrollViewer VerticalScrollBarVisibility="Auto">
-                <Grid Margin="10">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="*"/>
-                        <RowDefinition Height="Auto"/>
-                    </Grid.RowDefinitions>
-
-                    <GroupBox Header="Pedidos (Excel)" Padding="10">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
+        <!-- Tabs -->
+        <TabControl SelectedIndex="{Binding SelectedTabIndex, Mode=TwoWay}">
+            <TabItem Header="Pedidos">
+                <Grid>
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                        <Grid Margin="10">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
-                            </Grid.RowDefinitions>
-                            <TextBlock Text="Archivo Pedidos:" VerticalAlignment="Center" Margin="0,0,6,0"/>
-                            <TextBox Grid.Column="1" Text="{Binding PathA}" Margin="0,0,6,0"/>
-                            <Button Grid.Column="2" Content="Buscar" Command="{Binding BrowsePedidosCommand}" Margin="0,0,6,0"/>
-                            <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center" Margin="6,0,6,0">
-                                <TextBlock Text="Desde" VerticalAlignment="Center" Margin="0,0,6,0"/>
-                                <DatePicker SelectedDate="{Binding FilterFromDate, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="140"/>
-                            </StackPanel>
-                            <Button Grid.Column="4" Content="Cargar" Command="{Binding LoadPedidosCommand}"/>
-                        </Grid>
-                    </GroupBox>
-
-                    <!-- Filtros de búsqueda -->
-                    <GroupBox Grid.Row="1" Header="Filtros" Padding="10" Margin="0,10,0,0">
-                        <DockPanel LastChildFill="True">
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="Sucursal" Style="{StaticResource FilterLabel}"/>
-                                <ComboBox ItemsSource="{Binding SucursalesOpciones}" SelectedItem="{Binding FilterSucursal, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FilterBox}"/>
-
-                                <TextBlock Text="Veterinario" Style="{StaticResource FilterLabel}"/>
-                                <TextBox Text="{Binding FilterVeterinario, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FilterBox}"/>
-
-                                <TextBlock Text="Propietario" Style="{StaticResource FilterLabel}"/>
-                                <TextBox Text="{Binding FilterPropietario, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FilterBox}"/>
-
-                                <TextBlock Text="Paciente" Style="{StaticResource FilterLabel}"/>
-                                <TextBox Text="{Binding FilterPaciente, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FilterBox}"/>
-
-                                <TextBlock Text="Especie" Style="{StaticResource FilterLabel}"/>
-                                <ComboBox ItemsSource="{Binding EspecieFiltroOpciones}" SelectedItem="{Binding FilterEspecie, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FilterBox}"/>
-                            </StackPanel>
-                        </DockPanel>
-                    </GroupBox>
-
-                    <!-- Vista previa -->
-                    <GroupBox Grid.Row="2" Header="Vista previa" Padding="10" Margin="0,10,0,0">
-                        <Grid>
-                            <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="*"/>
+                                <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
 
-                            <TextBlock Text="Pedidos" FontWeight="Bold"/>
-                            <DataGrid Grid.Row="1" ItemsSource="{Binding Pedidos}" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="False" SelectedItem="{Binding SelectedPedido, Mode=TwoWay}">
-                                <DataGrid.Columns>
-                                    <DataGridTextColumn Header="Marca temporal" Binding="{Binding MarcaTemporal, StringFormat=dd/MM/yyyy HH:mm}" IsReadOnly="True"/>
-                                    <DataGridTextColumn Header="Correo" Binding="{Binding CorreoElectronico}" IsReadOnly="True"/>
-                                    <DataGridTextColumn Header="Sucursal" Binding="{Binding Sucursal}" IsReadOnly="True"/>
-                                    <DataGridTextColumn Header="Veterinario" Binding="{Binding VeterinarioSolicitante}" IsReadOnly="True"/>
-                                    <DataGridTextColumn Header="Propietario" Binding="{Binding Propietario}" IsReadOnly="True"/>
-                                    <DataGridTextColumn Header="Paciente" Binding="{Binding NombrePaciente}" IsReadOnly="True"/>
-                                    <DataGridTextColumn Header="Especie" Binding="{Binding EspecieFinal}" IsReadOnly="True"/>
-                                    <DataGridTextColumn Header="Sexo" Binding="{Binding Sexo}" IsReadOnly="True"/>
-                                    <DataGridTextColumn Header="Raza" Binding="{Binding Raza}" IsReadOnly="True"/>
-                                    <DataGridTextColumn Header="Edad" Binding="{Binding EdadDescripcion}" IsReadOnly="True"/>
-                                </DataGrid.Columns>
-                            </DataGrid>
-                        </Grid>
-                    </GroupBox>
+                            <GroupBox Header="Pedidos (Excel)" Padding="10">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+                                    <TextBlock Text="Archivo Pedidos:" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                    <TextBox Grid.Column="1" Text="{Binding PathA}" Margin="0,0,6,0"/>
+                                    <Button Grid.Column="2" Content="Buscar" Command="{Binding BrowsePedidosCommand}" Margin="0,0,6,0"/>
+                                    <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center" Margin="6,0,6,0">
+                                        <TextBlock Text="Desde" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                        <DatePicker SelectedDate="{Binding FilterFromDate, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="140"/>
+                                    </StackPanel>
+                                    <Button Grid.Column="4" Content="Cargar" Command="{Binding LoadPedidosCommand}"/>
+                                </Grid>
+                            </GroupBox>
 
-                    <!-- Botones al final, centrados -->
-                    <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10,0,0">
-                        <Button Content="Confirmar selección" Command="{Binding ConfirmSelectionCommand}" Style="{StaticResource PrimaryButton}"/>
-                        <Button Content="Limpiar" Command="{Binding ClearAllCommand}" Style="{StaticResource DangerButton}"/>
+                            <!-- Filtros de búsqueda -->
+                            <GroupBox Grid.Row="1" Header="Filtros" Padding="10" Margin="0,10,0,0">
+                                <DockPanel LastChildFill="True">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="Sucursal" Style="{StaticResource FilterLabel}"/>
+                                        <ComboBox ItemsSource="{Binding SucursalesOpciones}" SelectedItem="{Binding FilterSucursal, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FilterBox}"/>
+
+                                        <TextBlock Text="Veterinario" Style="{StaticResource FilterLabel}"/>
+                                        <TextBox Text="{Binding FilterVeterinario, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FilterBox}"/>
+
+                                        <TextBlock Text="Propietario" Style="{StaticResource FilterLabel}"/>
+                                        <TextBox Text="{Binding FilterPropietario, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FilterBox}"/>
+
+                                        <TextBlock Text="Paciente" Style="{StaticResource FilterLabel}"/>
+                                        <TextBox Text="{Binding FilterPaciente, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FilterBox}"/>
+
+                                        <TextBlock Text="Especie" Style="{StaticResource FilterLabel}"/>
+                                        <ComboBox ItemsSource="{Binding EspecieFiltroOpciones}" SelectedItem="{Binding FilterEspecie, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FilterBox}"/>
+                                    </StackPanel>
+                                </DockPanel>
+                            </GroupBox>
+
+                            <!-- Vista previa -->
+                            <GroupBox Grid.Row="2" Header="Vista previa" Padding="10" Margin="0,10,0,0">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="*"/>
+                                    </Grid.RowDefinitions>
+
+                                    <TextBlock Text="Pedidos" FontWeight="Bold"/>
+                                    <DataGrid Grid.Row="1" ItemsSource="{Binding Pedidos}" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="False" SelectedItem="{Binding SelectedPedido, Mode=TwoWay}">
+                                        <DataGrid.Columns>
+                                            <DataGridTextColumn Header="Marca temporal" Binding="{Binding MarcaTemporal, StringFormat=dd/MM/yyyy HH:mm}" IsReadOnly="True"/>
+                                            <DataGridTextColumn Header="Correo" Binding="{Binding CorreoElectronico}" IsReadOnly="True"/>
+                                            <DataGridTextColumn Header="Sucursal" Binding="{Binding Sucursal}" IsReadOnly="True"/>
+                                            <DataGridTextColumn Header="Veterinario" Binding="{Binding VeterinarioSolicitante}" IsReadOnly="True"/>
+                                            <DataGridTextColumn Header="Propietario" Binding="{Binding Propietario}" IsReadOnly="True"/>
+                                            <DataGridTextColumn Header="Paciente" Binding="{Binding NombrePaciente}" IsReadOnly="True"/>
+                                            <DataGridTextColumn Header="Especie" Binding="{Binding EspecieFinal}" IsReadOnly="True"/>
+                                            <DataGridTextColumn Header="Sexo" Binding="{Binding Sexo}" IsReadOnly="True"/>
+                                            <DataGridTextColumn Header="Raza" Binding="{Binding Raza}" IsReadOnly="True"/>
+                                            <DataGridTextColumn Header="Edad" Binding="{Binding EdadDescripcion}" IsReadOnly="True"/>
+                                        </DataGrid.Columns>
+                                    </DataGrid>
+                                </Grid>
+                            </GroupBox>
+
+                            <!-- Botones al final, centrados -->
+                            <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10,0,0">
+                                <Button Content="Confirmar selección" Command="{Binding ConfirmSelectionCommand}" Style="{StaticResource PrimaryButton}"/>
+                                <Button Content="Limpiar" Command="{Binding ClearAllCommand}" Style="{StaticResource DangerButton}"/>
+                            </StackPanel>
+                        </Grid>
+                    </ScrollViewer>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Informe" IsEnabled="{Binding IsInformeEnabled}">
+                <Grid Margin="10">
+                    <StackPanel>
+                        <TextBlock Text="LABORATORIO DE ANÁLISIS CLÍNICOS" FontSize="18" FontWeight="Bold" Margin="0,0,0,10"/>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+                            <TextBlock Text="Paciente: " FontWeight="Bold"/>
+                            <TextBlock Text="{Binding HeaderPaciente}"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+                            <TextBlock Text="Edad/Especie/Raza/Sexo: " FontWeight="Bold"/>
+                            <TextBlock Text="{Binding HeaderLinea2}"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+                            <TextBlock Text="Propietario: " FontWeight="Bold"/>
+                            <TextBlock Text="{Binding HeaderPropietario}"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+                            <TextBlock Text="Veterinario solicitante: " FontWeight="Bold"/>
+                            <TextBlock Text="{Binding HeaderVeterinario}"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+                            <TextBlock Text="UCLE (sucursal): " FontWeight="Bold"/>
+                            <TextBlock Text="{Binding HeaderSucursal}"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+                            <TextBlock Text="Bioquímico: " FontWeight="Bold"/>
+                            <TextBlock Text="{Binding Bioquimico}"/>
+                        </StackPanel>
                     </StackPanel>
                 </Grid>
-            </ScrollViewer>
+            </TabItem>
+        </TabControl>
 
-            <!-- Overlay de carga -->
-            <Grid Background="#80000000" Visibility="{Binding IsBusy, Converter={StaticResource BoolToVisibilityConverter}}">
-                <Border Background="White" Padding="20" CornerRadius="8" HorizontalAlignment="Center" VerticalAlignment="Center">
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
-                        <ProgressBar Width="180" Height="18" IsIndeterminate="True"/>
-                        <TextBlock Text=" Cargando..." FontWeight="Bold" Margin="8,0,0,0"/>
-                    </StackPanel>
-                </Border>
-            </Grid>
+        <!-- Overlay de carga (siempre arriba) -->
+        <Grid Background="#80000000" Visibility="{Binding IsBusy, Converter={StaticResource BoolToVisibilityConverter}}">
+            <Border Background="White" Padding="20" CornerRadius="8" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <ProgressBar Width="180" Height="18" IsIndeterminate="True"/>
+                    <TextBlock Text=" Cargando..." FontWeight="Bold" Margin="8,0,0,0"/>
+                </StackPanel>
+            </Border>
         </Grid>
     </Grid>
 </Window>

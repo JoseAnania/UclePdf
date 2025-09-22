@@ -1,8 +1,11 @@
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Data;
+using System.Threading.Tasks;
 using Microsoft.Win32;
-using UclePdf.Core;
+using UclePdf.Core; // RelayCommand
 using UclePdf.Core.Models;
 using UclePdf.Core.Services;
 
@@ -13,6 +16,7 @@ public class MainViewModel : ObservableObject
     private readonly IPedidosReader _pedidosReader;
 
     private const string NoneOption = "Sin selección";
+    private const string DefaultBioquimico = "Rodríguez Méndez Rocío MP 6275";
 
     public MainViewModel()
         : this(new PedidosReader()) { }
@@ -20,6 +24,7 @@ public class MainViewModel : ObservableObject
     public MainViewModel(IPedidosReader pedidosReader)
     {
         _pedidosReader = pedidosReader;
+        _bioquimico = DefaultBioquimico;
     }
 
     private bool _isBusy;
@@ -33,9 +38,62 @@ public class MainViewModel : ObservableObject
         }
     }
 
+    private int _selectedTabIndex;
+    public int SelectedTabIndex
+    {
+        get => _selectedTabIndex;
+        set => SetProperty(ref _selectedTabIndex, value);
+    }
+
+    private bool _isInformeEnabled;
+    public bool IsInformeEnabled
+    {
+        get => _isInformeEnabled;
+        set => SetProperty(ref _isInformeEnabled, value);
+    }
+
+    private string? _bioquimico;
+    public string? Bioquimico
+    {
+        get => _bioquimico;
+        set => SetProperty(ref _bioquimico, value);
+    }
+
+    private Pedido? _confirmedPedido;
+    public Pedido? ConfirmedPedido
+    {
+        get => _confirmedPedido;
+        set
+        {
+            if (SetProperty(ref _confirmedPedido, value))
+            {
+                OnPropertyChanged(nameof(HeaderPaciente));
+                OnPropertyChanged(nameof(HeaderLinea2));
+                OnPropertyChanged(nameof(HeaderPropietario));
+                OnPropertyChanged(nameof(HeaderVeterinario));
+                OnPropertyChanged(nameof(HeaderSucursal));
+            }
+        }
+    }
+
+    public string HeaderPaciente => ConfirmedPedido?.NombrePaciente ?? string.Empty;
+    public string HeaderLinea2
+    {
+        get
+        {
+            var parts = new[] { ConfirmedPedido?.EdadDescripcion, ConfirmedPedido?.EspecieFinal, ConfirmedPedido?.Raza, ConfirmedPedido?.Sexo }
+                .Where(s => !string.IsNullOrWhiteSpace(s));
+            return string.Join(" / ", parts);
+        }
+    }
+    public string HeaderPropietario => ConfirmedPedido?.Propietario ?? string.Empty;
+    public string HeaderVeterinario => ConfirmedPedido?.VeterinarioSolicitante ?? string.Empty;
+    public string HeaderSucursal => ConfirmedPedido?.Sucursal ?? string.Empty;
+
     private string? _pathA;
     public string? PathA { get => _pathA; set => SetProperty(ref _pathA, value); }
 
+    // Opciones de filtros
     public IReadOnlyList<string> SucursalesOpciones { get; } = new[]
     {
         "Todas",
@@ -167,7 +225,9 @@ public class MainViewModel : ObservableObject
             MessageBox.Show("Primero seleccione un registro", "Atención", MessageBoxButton.OK, MessageBoxImage.Warning);
             return;
         }
-        MessageBox.Show("Selección confirmada", "UCLE", MessageBoxButton.OK, MessageBoxImage.Information);
+        ConfirmedPedido = SelectedPedido;
+        IsInformeEnabled = true;
+        SelectedTabIndex = 1; // Cambiar a pestaña Informe
     }
 
     private void ClearAll()
@@ -178,6 +238,9 @@ public class MainViewModel : ObservableObject
         Pedidos.Clear();
         _allPedidos.Clear();
         SelectedPedido = null;
+        ConfirmedPedido = null;
+        IsInformeEnabled = false;
+        SelectedTabIndex = 0;
         PathA = null;
         FilterFromDate = null;
         FilterSucursal = "Todas";
@@ -185,5 +248,6 @@ public class MainViewModel : ObservableObject
         FilterVeterinario = null;
         FilterPropietario = null;
         FilterPaciente = null;
+        Bioquimico = DefaultBioquimico;
     }
 }
