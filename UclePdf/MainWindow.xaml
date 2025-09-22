@@ -8,7 +8,7 @@
         xmlns:controls="clr-namespace:UclePdf.Controls"
         xmlns:conv="clr-namespace:UclePdf.Core.Converters"
         mc:Ignorable="d"
-        Title="UCLE PDF" Height="750" Width="1150">
+        Title="UCLE PDF" Height="900" Width="1200">
     <Window.Resources>
         <conv:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
         <Style x:Key="PrimaryButton" TargetType="Button">
@@ -21,6 +21,15 @@
         <Style x:Key="DangerButton" TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
             <Setter Property="Background" Value="#FFD32F2F"/>
         </Style>
+        <Style x:Key="FilterLabel" TargetType="TextBlock">
+            <Setter Property="Margin" Value="0,0,6,0"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+        <Style x:Key="FilterBox" TargetType="FrameworkElement">
+            <Setter Property="Margin" Value="0,0,12,0"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="MinWidth" Value="140"/>
+        </Style>
     </Window.Resources>
     <Window.DataContext>
         <vm:MainViewModel />
@@ -29,7 +38,6 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        <!-- Contenido con overlay -->
         <Grid>
             <ScrollViewer VerticalScrollBarVisibility="Auto">
                 <Grid Margin="10">
@@ -52,7 +60,6 @@
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
-
                             <TextBlock Text="Archivo Pedidos:" VerticalAlignment="Center" Margin="0,0,6,0"/>
                             <TextBox Grid.Column="1" Text="{Binding PathA}" Margin="0,0,6,0"/>
                             <Button Grid.Column="2" Content="Buscar" Command="{Binding BrowsePedidosCommand}" Margin="0,0,6,0"/>
@@ -64,63 +71,29 @@
                         </Grid>
                     </GroupBox>
 
-                    <GroupBox Grid.Row="1" Header="Datos manuales (aplican al registro seleccionado)" Padding="10" Margin="0,10,0,0">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                            </Grid.RowDefinitions>
+                    <!-- Filtros de búsqueda -->
+                    <GroupBox Grid.Row="1" Header="Filtros" Padding="10" Margin="0,10,0,0">
+                        <DockPanel LastChildFill="True">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Sucursal" Style="{StaticResource FilterLabel}"/>
+                                <ComboBox ItemsSource="{Binding SucursalesOpciones}" SelectedItem="{Binding FilterSucursal, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FilterBox}"/>
 
-                            <!-- ESPECIE -->
-                            <StackPanel>
-                                <TextBlock Text="ESPECIE"/>
-                                <ComboBox ItemsSource="{Binding EspeciesOpciones}" SelectedItem="{Binding TempEspecie, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-                                <TextBox Margin="0,6,0,0">
-                                    <TextBox.Style>
-                                        <Style TargetType="TextBox">
-                                            <Setter Property="Visibility" Value="Collapsed"/>
-                                            <Setter Property="ToolTip" Value="Otra especie"/>
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding TempEspecie}" Value="Otros">
-                                                    <Setter Property="Visibility" Value="Visible"/>
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </TextBox.Style>
-                                    <TextBox.Text>
-                                        <Binding Path="TempEspecieOtro" Mode="TwoWay" UpdateSourceTrigger="PropertyChanged" />
-                                    </TextBox.Text>
-                                </TextBox>
-                            </StackPanel>
+                                <TextBlock Text="Veterinario" Style="{StaticResource FilterLabel}"/>
+                                <TextBox Text="{Binding FilterVeterinario, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FilterBox}"/>
 
-                            <!-- SEXO -->
-                            <StackPanel Grid.Column="1">
-                                <TextBlock Text="SEXO"/>
-                                <ComboBox ItemsSource="{Binding SexosOpciones}" SelectedItem="{Binding TempSexo, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-                            </StackPanel>
+                                <TextBlock Text="Propietario" Style="{StaticResource FilterLabel}"/>
+                                <TextBox Text="{Binding FilterPropietario, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FilterBox}"/>
 
-                            <!-- RAZA -->
-                            <StackPanel Grid.Column="2">
-                                <TextBlock Text="RAZA"/>
-                                <TextBox Text="{Binding TempRaza, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-                            </StackPanel>
+                                <TextBlock Text="Paciente" Style="{StaticResource FilterLabel}"/>
+                                <TextBox Text="{Binding FilterPaciente, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FilterBox}"/>
 
-                            <!-- EDAD -->
-                            <StackPanel Grid.Column="3">
-                                <TextBlock Text="EDAD"/>
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBox Width="60" Text="{Binding TempEdadCantidad, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,6,0"/>
-                                    <ComboBox Width="120" ItemsSource="{Binding EdadUnidadesOpciones}" SelectedItem="{Binding TempEdadUnidad, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-                                </StackPanel>
+                                <TextBlock Text="Especie" Style="{StaticResource FilterLabel}"/>
+                                <ComboBox ItemsSource="{Binding EspecieFiltroOpciones}" SelectedItem="{Binding FilterEspecie, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FilterBox}"/>
                             </StackPanel>
-                        </Grid>
+                        </DockPanel>
                     </GroupBox>
 
+                    <!-- Vista previa -->
                     <GroupBox Grid.Row="2" Header="Vista previa" Padding="10" Margin="0,10,0,0">
                         <Grid>
                             <Grid.RowDefinitions>

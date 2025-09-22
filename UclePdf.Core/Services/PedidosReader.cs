@@ -1,4 +1,7 @@
 using ClosedXML.Excel;
+using System.Globalization;
+using System.Text;
+using System.Text.RegularExpressions;
 using UclePdf.Core.Models;
 
 namespace UclePdf.Core.Services;
@@ -15,7 +18,6 @@ public class PedidosReader : IPedidosReader
         using var wb = new XLWorkbook(path);
         var ws = wb.Worksheets.First();
 
-        // Mapear cabeceras a índices de columna (case-insensitive, sin acentos básicos)
         var headerRow = ws.FirstRowUsed();
         var headers = headerRow.CellsUsed().ToDictionary(
             c => Normalize(c.GetString()),
@@ -33,6 +35,11 @@ public class PedidosReader : IPedidosReader
         var colVet = Col("VETERINARIO SOLICITANTE");
         var colProp = Col("PROPIETARIO");
         var colPaciente = Col("NOMBRE DEL PACIENTE");
+        
+        var colEspecie = Col("ESPECIE");
+        var colSexo = Col("SEXO");
+        var colRaza = Col("RAZA");
+        var colEdad = Col("EDAD");
 
         var list = new List<Pedido>();
         foreach (var row in ws.RowsUsed().Skip(1))
@@ -48,7 +55,11 @@ public class PedidosReader : IPedidosReader
                 NombrePaciente = Get(row, colPaciente)
             };
 
-            // Filtro por fecha (desde)
+            p.Especie = Get(row, colEspecie);
+            p.Sexo = Get(row, colSexo);
+            p.Raza = Get(row, colRaza);
+            ParseEdad(Get(row, colEdad), p);
+
             if (from is DateTime fromDate)
             {
                 if (!p.MarcaTemporal.HasValue || p.MarcaTemporal.Value < fromDate)
@@ -73,13 +84,38 @@ public class PedidosReader : IPedidosReader
         return null;
     }
 
+    private static void ParseEdad(string? raw, Pedido p)
+    {
+        p.EdadCantidad = null;
+        p.EdadUnidad = null;
+        if (string.IsNullOrWhiteSpace(raw)) return;
+        var s = RemoveAccents(raw).ToLowerInvariant();
+        var m = Regex.Match(s, @"\d+");
+        if (!m.Success) return;
+        if (int.TryParse(m.Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var n))
+            p.EdadCantidad = n;
+        if (s.Contains("mes")) p.EdadUnidad = "Meses";
+        else if (s.Contains("ano") || s.Contains("año")) p.EdadUnidad = "Años";
+        else p.EdadUnidad = "Años";
+    }
+
     private static string Normalize(string s)
     {
         s = s.Trim().ToLowerInvariant();
-        s = s
-            .Replace("á", "a").Replace("é", "e").Replace("í", "i").Replace("ó", "o").Replace("ú", "u")
-            .Replace("ä", "a").Replace("ë", "e").Replace("ï", "i").Replace("ö", "o").Replace("ü", "u")
-            .Replace("ñ", "n");
+        s = RemoveAccents(s);
         return s;
+    }
+
+    private static string RemoveAccents(string text)
+    {
+        var norm = text.Normalize(NormalizationForm.FormD);
+        var chars = new List<char>(norm.Length);
+        foreach (var ch in norm)
+        {
+            var uc = CharUnicodeInfo.GetUnicodeCategory(ch);
+            if (uc != UnicodeCategory.NonSpacingMark)
+                chars.Add(ch);
+        }
+        return new string(chars.ToArray()).Normalize(NormalizationForm.FormC);
     }
 }

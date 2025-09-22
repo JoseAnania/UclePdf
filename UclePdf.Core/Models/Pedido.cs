@@ -18,7 +18,7 @@ public class Pedido : INotifyPropertyChanged
 
     private string? _raza;
     private int? _edadCantidad;
-    private string? _edadUnidad; // "Años" | "Meses"
+    private string? _edadUnidad;
 
     public DateTime? MarcaTemporal { get => _marcaTemporal; set => SetProperty(ref _marcaTemporal, value); }
     public string? CorreoElectronico { get => _correoElectronico; set => SetProperty(ref _correoElectronico, value); }

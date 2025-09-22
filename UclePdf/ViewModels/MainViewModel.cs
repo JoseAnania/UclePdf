@@ -1,7 +1,6 @@
 using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Input;
-using System.Windows.Data;
 using Microsoft.Win32;
 using UclePdf.Core;
 using UclePdf.Core.Models;
@@ -14,7 +13,6 @@ public class MainViewModel : ObservableObject
     private readonly IPedidosReader _pedidosReader;
 
     private const string NoneOption = "Sin selección";
-    private bool _suppressUi;
 
     public MainViewModel()
         : this(new PedidosReader()) { }
@@ -38,182 +36,60 @@ public class MainViewModel : ObservableObject
     private string? _pathA;
     public string? PathA { get => _pathA; set => SetProperty(ref _pathA, value); }
 
-    public IReadOnlyList<string> EspeciesOpciones { get; } = new[] { NoneOption, "Felino", "Canino", "Otros" };
-    public IReadOnlyList<string> SexosOpciones { get; } = new[] { NoneOption, "Hembra", "Macho" };
-    public IReadOnlyList<string> EdadUnidadesOpciones { get; } = new[] { NoneOption, "Años", "Meses" };
+    public IReadOnlyList<string> SucursalesOpciones { get; } = new[]
+    {
+        "Todas",
+        "UCLE 1 (Central)",
+        "UCLE 2 (Fuerza Aerea)",
+        "UCLE 3 (CPC)",
+        "UCLE 5 (Malagueño)",
+        "UCLE 8 (Pueyrredón)",
+        "UCLE 9 (Tropezón)",
+        "UCLE 10 (Falda)"
+    };
 
-    // Selección actual en la grilla
+    public IReadOnlyList<string> EspecieFiltroOpciones { get; } = new[] { "Todas", "Canino", "Felino" };
+
+    private string _filterSucursal = "Todas";
+    public string FilterSucursal
+    {
+        get => _filterSucursal;
+        set { if (SetProperty(ref _filterSucursal, value)) ApplyFilter(); }
+    }
+
+    private string _filterEspecie = "Todas";
+    public string FilterEspecie
+    {
+        get => _filterEspecie;
+        set { if (SetProperty(ref _filterEspecie, value)) ApplyFilter(); }
+    }
+
+    private string? _filterVeterinario;
+    public string? FilterVeterinario
+    {
+        get => _filterVeterinario;
+        set { if (SetProperty(ref _filterVeterinario, value)) ApplyFilter(); }
+    }
+
+    private string? _filterPropietario;
+    public string? FilterPropietario
+    {
+        get => _filterPropietario;
+        set { if (SetProperty(ref _filterPropietario, value)) ApplyFilter(); }
+    }
+
+    private string? _filterPaciente;
+    public string? FilterPaciente
+    {
+        get => _filterPaciente;
+        set { if (SetProperty(ref _filterPaciente, value)) ApplyFilter(); }
+    }
+
     private Pedido? _selectedPedido;
     public Pedido? SelectedPedido
     {
         get => _selectedPedido;
-        set
-        {
-            if (SetProperty(ref _selectedPedido, value))
-            {
-                _suppressUi = true;
-                try
-                {
-                    TempEspecie = value?.Especie ?? NoneOption;
-                    TempEspecieOtro = value?.EspecieOtro;
-                    TempSexo = value?.Sexo ?? NoneOption;
-                    TempRaza = value?.Raza;
-                    TempEdadCantidad = value?.EdadCantidad?.ToString();
-                    TempEdadUnidad = value?.EdadUnidad ?? NoneOption;
-                }
-                finally { _suppressUi = false; }
-            }
-        }
-    }
-
-    // Valores temporales de edición
-    private string? _tempEspecie;
-    public string? TempEspecie
-    {
-        get => _tempEspecie;
-        set
-        {
-            if (SetProperty(ref _tempEspecie, value))
-            {
-                if (SelectedPedido is null)
-                {
-                    if (_suppressUi) return;
-                    if (!string.IsNullOrEmpty(value))
-                        MessageBox.Show("Primero seleccione un registro", "Atención", MessageBoxButton.OK, MessageBoxImage.Warning);
-                    return;
-                }
-                string? especie = value;
-                if (string.IsNullOrWhiteSpace(especie) || especie == NoneOption)
-                    especie = null;
-
-                SelectedPedido.Especie = especie;
-                if (especie != "Otros")
-                {
-                    TempEspecieOtro = null;
-                    SelectedPedido.EspecieOtro = null;
-                }
-                RefreshSelectedRow();
-            }
-        }
-    }
-
-    private string? _tempEspecieOtro;
-    public string? TempEspecieOtro
-    {
-        get => _tempEspecieOtro;
-        set
-        {
-            if (SetProperty(ref _tempEspecieOtro, value))
-            {
-                if (SelectedPedido is null)
-                {
-                    if (_suppressUi) return;
-                    if (!string.IsNullOrEmpty(value))
-                        MessageBox.Show("Primero seleccione un registro", "Atención", MessageBoxButton.OK, MessageBoxImage.Warning);
-                    return;
-                }
-                if (SelectedPedido.Especie != "Otros")
-                {
-                    MessageBox.Show("Para cargar 'Otros', primero seleccione ESPECIE = 'Otros'", "Atención", MessageBoxButton.OK, MessageBoxImage.Warning);
-                    return;
-                }
-                SelectedPedido.EspecieOtro = value;
-                RefreshSelectedRow();
-            }
-        }
-    }
-
-    private string? _tempSexo;
-    public string? TempSexo
-    {
-        get => _tempSexo;
-        set
-        {
-            if (SetProperty(ref _tempSexo, value))
-            {
-                if (SelectedPedido is null)
-                {
-                    if (_suppressUi) return;
-                    if (!string.IsNullOrEmpty(value))
-                        MessageBox.Show("Primero seleccione un registro", "Atención", MessageBoxButton.OK, MessageBoxImage.Warning);
-                    return;
-                }
-                string? sexo = value;
-                if (string.IsNullOrWhiteSpace(sexo) || sexo == NoneOption)
-                    sexo = null;
-                SelectedPedido.Sexo = sexo;
-                RefreshSelectedRow();
-            }
-        }
-    }
-
-    private string? _tempRaza;
-    public string? TempRaza
-    {
-        get => _tempRaza;
-        set
-        {
-            if (SetProperty(ref _tempRaza, value))
-            {
-                if (SelectedPedido is null)
-                {
-                    if (_suppressUi) return;
-                    if (!string.IsNullOrEmpty(value))
-                        MessageBox.Show("Primero seleccione un registro", "Atención", MessageBoxButton.OK, MessageBoxImage.Warning);
-                    return;
-                }
-                SelectedPedido.Raza = value;
-                RefreshSelectedRow();
-            }
-        }
-    }
-
-    private string? _tempEdadCantidad;
-    public string? TempEdadCantidad
-    {
-        get => _tempEdadCantidad;
-        set
-        {
-            if (SetProperty(ref _tempEdadCantidad, value))
-            {
-                if (SelectedPedido is null)
-                {
-                    if (_suppressUi) return;
-                    if (!string.IsNullOrEmpty(value))
-                        MessageBox.Show("Primero seleccione un registro", "Atención", MessageBoxButton.OK, MessageBoxImage.Warning);
-                    return;
-                }
-                if (int.TryParse(value, out var n) && n >= 0)
-                    SelectedPedido.EdadCantidad = n;
-                else if (string.IsNullOrWhiteSpace(value))
-                    SelectedPedido.EdadCantidad = null;
-                RefreshSelectedRow();
-            }
-        }
-    }
-
-    private string? _tempEdadUnidad;
-    public string? TempEdadUnidad
-    {
-        get => _tempEdadUnidad;
-        set
-        {
-            if (SetProperty(ref _tempEdadUnidad, value))
-            {
-                if (SelectedPedido is null)
-                {
-                    if (_suppressUi) return;
-                    if (!string.IsNullOrEmpty(value))
-                        MessageBox.Show("Primero seleccione un registro", "Atención", MessageBoxButton.OK, MessageBoxImage.Warning);
-                    return;
-                }
-                string? unidad = value;
-                if (string.IsNullOrWhiteSpace(unidad) || unidad == NoneOption)
-                    unidad = null;
-                SelectedPedido.EdadUnidad = unidad;
-                RefreshSelectedRow();
-            }
-        }
+        set => SetProperty(ref _selectedPedido, value);
     }
 
     public ObservableCollection<Pedido> Pedidos { get; } = new();
@@ -223,7 +99,7 @@ public class MainViewModel : ObservableObject
     public DateTime? FilterFromDate
     {
         get => _filterFromDate;
-        set => SetProperty(ref _filterFromDate, value);
+        set { if (SetProperty(ref _filterFromDate, value)) ApplyFilter(); }
     }
 
     public ICommand BrowsePedidosCommand => new RelayCommand(_ => PathA = BrowseExcel());
@@ -259,6 +135,24 @@ public class MainViewModel : ObservableObject
     private void ApplyFilter()
     {
         IEnumerable<Pedido> src = _allPedidos;
+
+        // Filtros
+        if (!string.IsNullOrWhiteSpace(FilterSucursal) && FilterSucursal != "Todas")
+            src = src.Where(p => string.Equals(p.Sucursal ?? string.Empty, FilterSucursal, StringComparison.OrdinalIgnoreCase));
+
+        if (!string.IsNullOrWhiteSpace(FilterEspecie) && FilterEspecie != "Todas")
+            src = src.Where(p => string.Equals((p.Especie ?? p.EspecieFinal ?? string.Empty), FilterEspecie, StringComparison.OrdinalIgnoreCase));
+
+        if (!string.IsNullOrWhiteSpace(FilterVeterinario))
+            src = src.Where(p => (p.VeterinarioSolicitante ?? string.Empty).Contains(FilterVeterinario, StringComparison.OrdinalIgnoreCase));
+
+        if (!string.IsNullOrWhiteSpace(FilterPropietario))
+            src = src.Where(p => (p.Propietario ?? string.Empty).Contains(FilterPropietario, StringComparison.OrdinalIgnoreCase));
+
+        if (!string.IsNullOrWhiteSpace(FilterPaciente))
+            src = src.Where(p => (p.NombrePaciente ?? string.Empty).Contains(FilterPaciente, StringComparison.OrdinalIgnoreCase));
+
+        // Orden
         src = src.OrderByDescending(p => p.MarcaTemporal ?? DateTime.MinValue);
 
         Pedidos.Clear();
@@ -273,19 +167,6 @@ public class MainViewModel : ObservableObject
             MessageBox.Show("Primero seleccione un registro", "Atención", MessageBoxButton.OK, MessageBoxImage.Warning);
             return;
         }
-        SelectedPedido.Especie = TempEspecie == NoneOption ? null : TempEspecie;
-        if (SelectedPedido.Especie != "Otros")
-            SelectedPedido.EspecieOtro = null;
-        else
-            SelectedPedido.EspecieOtro = TempEspecieOtro;
-        SelectedPedido.Sexo = TempSexo == NoneOption ? null : TempSexo;
-        SelectedPedido.Raza = TempRaza;
-        if (int.TryParse(TempEdadCantidad, out var n) && n >= 0)
-            SelectedPedido.EdadCantidad = n;
-        else if (string.IsNullOrWhiteSpace(TempEdadCantidad))
-            SelectedPedido.EdadCantidad = null;
-        SelectedPedido.EdadUnidad = TempEdadUnidad == NoneOption ? null : TempEdadUnidad;
-        RefreshSelectedRow();
         MessageBox.Show("Selección confirmada", "UCLE", MessageBoxButton.OK, MessageBoxImage.Information);
     }
 
@@ -294,28 +175,15 @@ public class MainViewModel : ObservableObject
         var res = MessageBox.Show("¿Está seguro de limpiar todo? Esta acción no se puede deshacer.", "Confirmar", MessageBoxButton.YesNo, MessageBoxImage.Question);
         if (res != MessageBoxResult.Yes) return;
 
-        _suppressUi = true;
-        try
-        {
-            Pedidos.Clear();
-            _allPedidos.Clear();
-            SelectedPedido = null;
-            PathA = null;
-            FilterFromDate = null;
-            TempEspecie = null;
-            TempEspecieOtro = null;
-            TempSexo = null;
-            TempRaza = null;
-            TempEdadCantidad = null;
-            TempEdadUnidad = null;
-        }
-        finally { _suppressUi = false; }
-    }
-
-    private void RefreshSelectedRow()
-    {
-        if (SelectedPedido is null) return;
-        var view = CollectionViewSource.GetDefaultView(Pedidos);
-        view?.Refresh();
+        Pedidos.Clear();
+        _allPedidos.Clear();
+        SelectedPedido = null;
+        PathA = null;
+        FilterFromDate = null;
+        FilterSucursal = "Todas";
+        FilterEspecie = "Todas";
+        FilterVeterinario = null;
+        FilterPropietario = null;
+        FilterPaciente = null;
     }
 }
