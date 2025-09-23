@@ -6,22 +6,22 @@ namespace UclePdf.ViewModels;
 
 public class OrinaItem : INotifyPropertyChanged
 {
-    public OrinaItem(string seccion, string determinacion, string refCaninos, string refFelinos, bool topSeparator = false)
+    public OrinaItem(string seccion, string determinacion, string refCaninos, string refFelinos, bool topSeparator = false, bool isNumeric = false)
     {
         Seccion = seccion;
         Determinacion = determinacion;
         RefCaninos = refCaninos;
         RefFelinos = refFelinos;
         TopSeparator = topSeparator;
+        IsNumeric = isNumeric;
     }
 
     public string Seccion { get; }
     public string Determinacion { get; }
     public string RefCaninos { get; }
     public string RefFelinos { get; }
-
-    // Usado para dibujar una línea superior para separar del título de sección
     public bool TopSeparator { get; }
+    public bool IsNumeric { get; }
 
     private string? _valor;
     public string? Valor
@@ -54,18 +54,18 @@ public class OrinaViewModel : INotifyPropertyChanged
 
     public OrinaViewModel()
     {
-        void Add(string seccion, string det, string can, string fel, bool top = false)
-            => Items.Add(new OrinaItem(seccion, det, can, fel, top));
+        void Add(string seccion, string det, string can, string fel, bool top = false, bool numeric = false)
+            => Items.Add(new OrinaItem(seccion, det, can, fel, top, numeric));
 
-        const string fisicoquimico = "Examen fisicoquímico";
-        const string sediment = "Examen microscópico del sedimento";
+        const string fisicoquimico = "Examen fisicoquimico";
+        const string sediment = "Examen microscopico del sedimento";
 
         // Examen Fisicoquímico
-        Add(fisicoquimico, "Color", "amarillo ámbar", "amarillo ámbar", top: true);
-        Add(fisicoquimico, "Aspecto", "límpido", "límpido");
+        Add(fisicoquimico, "Color", "amarillo ambar", "amarillo ambar", top: true);
+        Add(fisicoquimico, "Aspecto", "limpido", "limpido");
         Add(fisicoquimico, "Densidad (gr/ml)", "1015-1045", "1020-1050");
-        Add(fisicoquimico, "pH", "5-7", "5-7");
-        Add(fisicoquimico, "Proteínas", "no contiene", "no contiene");
+        Add(fisicoquimico, "Ph", "5-7", "5-7");
+        Add(fisicoquimico, "Proteinas", "no contiene", "no contiene");
         Add(fisicoquimico, "Glucosa", "no contiene", "no contiene");
         Add(fisicoquimico, "Cetonas", "no contiene", "no contiene");
         Add(fisicoquimico, "Pigmentos biliares", "trazas, hasta +", "trazas, hasta +");
@@ -74,12 +74,12 @@ public class OrinaViewModel : INotifyPropertyChanged
         Add(fisicoquimico, "Nitritos", "no contiene", "no contiene");
 
         // Examen microscópico del sedimento
-        Add(sediment, "Células epiteliales planas", "1-5/cpo", "1-5/cpo", top: true);
-        Add(sediment, "Células de transición", "0-1 / 5 campos", "0-1 / 5 campos");
-        Add(sediment, "Células renales", "no contiene", "no contiene");
-        Add(sediment, "Leucocitos", "0-3/cpo", "0-3/cpo");
-        Add(sediment, "Hematíes", "0-3/cpo", "0-3/cpo");
-        Add(sediment, "Cilindros", "1-2 / preparado", "1-2 / preparado");
+        Add(sediment, "Celulas epiteliales planas", "1-5/campo", "1-5/campo", top: true);
+        Add(sediment, "Celulas de transicion", "1-5/campo", "1-5/campo");
+        Add(sediment, "Celulas renales", "no contiene", "no contiene");
+        Add(sediment, "Leucocitos", "0-3/campo", "0-3/campo");
+        Add(sediment, "Hematies", "0-3/campo", "0-3/campo");
+        Add(sediment, "Cilindros", "1-2/preparado", "1-2/preparado");
     }
 
     public void ClearValores()
