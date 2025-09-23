@@ -76,6 +76,7 @@ public class MainViewModel : ObservableObject
                 OnPropertyChanged(nameof(IsHemogramaLoaded));
                 OnPropertyChanged(nameof(IsQuimicaLoaded));
                 OnPropertyChanged(nameof(IsOrinaLoaded));
+                OnPropertyChanged(nameof(IsHemostasiaLoaded));
             }
         }
     }
@@ -100,9 +101,11 @@ public class MainViewModel : ObservableObject
     private readonly Dictionary<Pedido, HemogramaViewModel> _hemogramas = new();
     private readonly Dictionary<Pedido, QuimicaViewModel> _quimicas = new();
     private readonly Dictionary<Pedido, OrinaViewModel> _orinas = new();
+    private readonly Dictionary<Pedido, HemostasiaViewModel> _hemostasias = new();
     public bool IsHemogramaLoaded => ConfirmedPedido != null && _hemogramas.TryGetValue(ConfirmedPedido, out var hvm) && hvm.IsConfirmed && hvm.Items.Any(i => i.ValorRelativo.HasValue);
     public bool IsQuimicaLoaded => ConfirmedPedido != null && _quimicas.TryGetValue(ConfirmedPedido, out var qvm) && qvm.IsConfirmed && qvm.Items.Any(i => i.Valor.HasValue);
     public bool IsOrinaLoaded => ConfirmedPedido != null && _orinas.TryGetValue(ConfirmedPedido, out var ovm) && ovm.IsConfirmed && ovm.Items.Any(i => !string.IsNullOrWhiteSpace(i.Valor));
+    public bool IsHemostasiaLoaded => ConfirmedPedido != null && _hemostasias.TryGetValue(ConfirmedPedido, out var htv) && htv.IsConfirmed && htv.Items.Any(i => i.Valor.HasValue);
 
     public IReadOnlyList<string> SucursalesOpciones { get; } = new[]
     {
@@ -178,6 +181,7 @@ public class MainViewModel : ObservableObject
     public ICommand OpenHemogramaCommand => new RelayCommand(_ => OpenHemograma(), _ => IsInformeEnabled && ConfirmedPedido != null);
     public ICommand OpenQuimicaCommand => new RelayCommand(_ => OpenQuimica(), _ => IsInformeEnabled && ConfirmedPedido != null);
     public ICommand OpenOrinaCommand => new RelayCommand(_ => OpenOrina(), _ => IsInformeEnabled && ConfirmedPedido != null);
+    public ICommand OpenHemostasiaCommand => new RelayCommand(_ => OpenHemostasia(), _ => IsInformeEnabled && ConfirmedPedido != null);
 
     private static string? BrowseExcel()
     {
@@ -289,6 +293,22 @@ public class MainViewModel : ObservableObject
         OnPropertyChanged(nameof(IsOrinaLoaded));
     }
 
+    private void OpenHemostasia()
+    {
+        if (ConfirmedPedido is null) return;
+        if (!_hemostasias.TryGetValue(ConfirmedPedido, out var vm))
+        {
+            vm = new HemostasiaViewModel();
+        }
+        var win = new HemostasiaWindow(vm) { Owner = Application.Current?.MainWindow };
+        var result = win.ShowDialog();
+        if (result == true)
+        {
+            _hemostasias[ConfirmedPedido] = vm;
+        }
+        OnPropertyChanged(nameof(IsHemostasiaLoaded));
+    }
+
     private void ClearAll()
     {
         var res = MessageBox.Show("¿Está seguro de limpiar todo? Esta acción no se puede deshacer.", "Confirmar", MessageBoxButton.YesNo, MessageBoxImage.Question);
@@ -299,6 +319,7 @@ public class MainViewModel : ObservableObject
         _hemogramas.Clear();
         _quimicas.Clear();
         _orinas.Clear();
+        _hemostasias.Clear();
         SelectedPedido = null;
         ConfirmedPedido = null;
         IsInformeEnabled = false;
