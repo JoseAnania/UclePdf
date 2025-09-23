@@ -8,6 +8,7 @@ using Microsoft.Win32;
 using UclePdf.Core; // RelayCommand
 using UclePdf.Core.Models;
 using UclePdf.Core.Services;
+using UclePdf.Views;
 
 namespace UclePdf.ViewModels;
 
@@ -72,6 +73,7 @@ public class MainViewModel : ObservableObject
                 OnPropertyChanged(nameof(HeaderPropietario));
                 OnPropertyChanged(nameof(HeaderVeterinario));
                 OnPropertyChanged(nameof(HeaderSucursal));
+                OnPropertyChanged(nameof(IsHemogramaLoaded));
             }
         }
     }
@@ -93,7 +95,9 @@ public class MainViewModel : ObservableObject
     private string? _pathA;
     public string? PathA { get => _pathA; set => SetProperty(ref _pathA, value); }
 
-    // Opciones de filtros
+    private readonly Dictionary<Pedido, HemogramaViewModel> _hemogramas = new();
+    public bool IsHemogramaLoaded => ConfirmedPedido != null && _hemogramas.TryGetValue(ConfirmedPedido, out var vm) && vm.IsConfirmed && vm.Items.Any(i => i.ValorRelativo.HasValue);
+
     public IReadOnlyList<string> SucursalesOpciones { get; } = new[]
     {
         "Todas",
@@ -165,6 +169,7 @@ public class MainViewModel : ObservableObject
 
     public ICommand ClearAllCommand => new RelayCommand(_ => ClearAll(), _ => Pedidos.Count > 0 && !IsBusy);
     public ICommand ConfirmSelectionCommand => new RelayCommand(_ => ConfirmSelection(), _ => !IsBusy);
+    public ICommand OpenHemogramaCommand => new RelayCommand(_ => OpenHemograma(), _ => IsInformeEnabled && ConfirmedPedido != null);
 
     private static string? BrowseExcel()
     {
@@ -194,7 +199,6 @@ public class MainViewModel : ObservableObject
     {
         IEnumerable<Pedido> src = _allPedidos;
 
-        // Filtros
         if (!string.IsNullOrWhiteSpace(FilterSucursal) && FilterSucursal != "Todas")
             src = src.Where(p => string.Equals(p.Sucursal ?? string.Empty, FilterSucursal, StringComparison.OrdinalIgnoreCase));
 
@@ -210,7 +214,6 @@ public class MainViewModel : ObservableObject
         if (!string.IsNullOrWhiteSpace(FilterPaciente))
             src = src.Where(p => (p.NombrePaciente ?? string.Empty).Contains(FilterPaciente, StringComparison.OrdinalIgnoreCase));
 
-        // Orden
         src = src.OrderByDescending(p => p.MarcaTemporal ?? DateTime.MinValue);
 
         Pedidos.Clear();
@@ -227,7 +230,23 @@ public class MainViewModel : ObservableObject
         }
         ConfirmedPedido = SelectedPedido;
         IsInformeEnabled = true;
-        SelectedTabIndex = 1; // Cambiar a pestaña Informe
+        SelectedTabIndex = 1;
+    }
+
+    private void OpenHemograma()
+    {
+        if (ConfirmedPedido is null) return;
+        if (!_hemogramas.TryGetValue(ConfirmedPedido, out var vm))
+        {
+            vm = new HemogramaViewModel();
+        }
+        var win = new HemogramaWindow(vm) { Owner = Application.Current?.MainWindow };
+        var result = win.ShowDialog();
+        if (result == true)
+        {
+            _hemogramas[ConfirmedPedido] = vm;
+        }
+        OnPropertyChanged(nameof(IsHemogramaLoaded));
     }
 
     private void ClearAll()
@@ -237,6 +256,7 @@ public class MainViewModel : ObservableObject
 
         Pedidos.Clear();
         _allPedidos.Clear();
+        _hemogramas.Clear();
         SelectedPedido = null;
         ConfirmedPedido = null;
         IsInformeEnabled = false;
