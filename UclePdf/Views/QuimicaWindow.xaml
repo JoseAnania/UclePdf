@@ -23,6 +23,13 @@
             <Setter Property="HorizontalAlignment" Value="Right"/>
         </Style>
         <SolidColorBrush x:Key="CalcBg" Color="#FFFDE9A9"/>
+        <Style x:Key="CalcCellStyle" TargetType="DataGridCell">
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding EsCalculado}" Value="True">
+                    <Setter Property="Background" Value="{StaticResource CalcBg}"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
     </Window.Resources>
     <Window.DataContext>
         <vm:QuimicaViewModel/>
@@ -39,7 +46,7 @@
                 <DataGridTextColumn Header="Determinacion" Binding="{Binding Determinacion}" IsReadOnly="True" Width="*"/>
                 <DataGridTextColumn Header="Unidades" Binding="{Binding Unidades}" IsReadOnly="True" Width="120"/>
 
-                <DataGridTextColumn Header="Valor hallado" Width="140">
+                <DataGridTextColumn Header="Valor hallado" Width="140" CellStyle="{StaticResource CalcCellStyle}">
                     <DataGridTextColumn.Binding>
                         <Binding Path="Valor" Mode="TwoWay" UpdateSourceTrigger="PropertyChanged" Converter="{StaticResource StringToDouble}">
                             <Binding.ValidationRules>
@@ -50,11 +57,6 @@
                     <DataGridTextColumn.ElementStyle>
                         <Style TargetType="TextBlock" BasedOn="{StaticResource RightAlignedTextBlock}">
                             <Setter Property="Text" Value="{Binding Valor, Converter={StaticResource StringToDouble}}"/>
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding EsCalculado}" Value="True">
-                                    <Setter Property="Background" Value="{StaticResource CalcBg}"/>
-                                </DataTrigger>
-                            </Style.Triggers>
                         </Style>
                     </DataGridTextColumn.ElementStyle>
                     <DataGridTextColumn.EditingElementStyle>

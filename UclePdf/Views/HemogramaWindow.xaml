@@ -23,6 +23,13 @@
             <Setter Property="HorizontalAlignment" Value="Right"/>
         </Style>
         <SolidColorBrush x:Key="CalcBg" Color="#FFFDE9A9"/>
+        <Style x:Key="CalcCellStyle" TargetType="DataGridCell">
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding EsCalculadoAbsoluto}" Value="True">
+                    <Setter Property="Background" Value="{StaticResource CalcBg}"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
     </Window.Resources>
     <Window.DataContext>
         <vm:HemogramaViewModel/>
@@ -60,15 +67,9 @@
                     </DataGridTextColumn.EditingElementStyle>
                 </DataGridTextColumn>
 
-                <DataGridTextColumn Header="Valor absoluto" Binding="{Binding ValorAbsoluto, StringFormat=F0}" IsReadOnly="True" Width="120">
+                <DataGridTextColumn Header="Valor absoluto" Binding="{Binding ValorAbsoluto, StringFormat=F0}" IsReadOnly="True" Width="120" CellStyle="{StaticResource CalcCellStyle}">
                     <DataGridTextColumn.ElementStyle>
-                        <Style TargetType="TextBlock" BasedOn="{StaticResource RightAlignedTextBlock}">
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding EsCalculadoAbsoluto}" Value="True">
-                                    <Setter Property="Background" Value="{StaticResource CalcBg}"/>
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
+                        <Style TargetType="TextBlock" BasedOn="{StaticResource RightAlignedTextBlock}"/>
                     </DataGridTextColumn.ElementStyle>
                 </DataGridTextColumn>
 
