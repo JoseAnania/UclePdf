@@ -77,6 +77,7 @@ public class MainViewModel : ObservableObject
                 OnPropertyChanged(nameof(IsQuimicaLoaded));
                 OnPropertyChanged(nameof(IsOrinaLoaded));
                 OnPropertyChanged(nameof(IsHemostasiaLoaded));
+                OnPropertyChanged(nameof(IsFrotisLoaded));
             }
         }
     }
@@ -102,10 +103,12 @@ public class MainViewModel : ObservableObject
     private readonly Dictionary<Pedido, QuimicaViewModel> _quimicas = new();
     private readonly Dictionary<Pedido, OrinaViewModel> _orinas = new();
     private readonly Dictionary<Pedido, HemostasiaViewModel> _hemostasias = new();
+    private readonly Dictionary<Pedido, FrotisViewModel> _frotis = new();
     public bool IsHemogramaLoaded => ConfirmedPedido != null && _hemogramas.TryGetValue(ConfirmedPedido, out var hvm) && hvm.IsConfirmed && hvm.Items.Any(i => i.ValorRelativo.HasValue);
     public bool IsQuimicaLoaded => ConfirmedPedido != null && _quimicas.TryGetValue(ConfirmedPedido, out var qvm) && qvm.IsConfirmed && qvm.Items.Any(i => i.Valor.HasValue);
     public bool IsOrinaLoaded => ConfirmedPedido != null && _orinas.TryGetValue(ConfirmedPedido, out var ovm) && ovm.IsConfirmed && ovm.Items.Any(i => !string.IsNullOrWhiteSpace(i.Valor));
     public bool IsHemostasiaLoaded => ConfirmedPedido != null && _hemostasias.TryGetValue(ConfirmedPedido, out var htv) && htv.IsConfirmed && htv.Items.Any(i => i.Valor.HasValue);
+    public bool IsFrotisLoaded => ConfirmedPedido != null && _frotis.TryGetValue(ConfirmedPedido, out var fr) && fr.IsConfirmed && !string.IsNullOrWhiteSpace(fr.Resultado);
 
     public IReadOnlyList<string> SucursalesOpciones { get; } = new[]
     {
@@ -182,6 +185,7 @@ public class MainViewModel : ObservableObject
     public ICommand OpenQuimicaCommand => new RelayCommand(_ => OpenQuimica(), _ => IsInformeEnabled && ConfirmedPedido != null);
     public ICommand OpenOrinaCommand => new RelayCommand(_ => OpenOrina(), _ => IsInformeEnabled && ConfirmedPedido != null);
     public ICommand OpenHemostasiaCommand => new RelayCommand(_ => OpenHemostasia(), _ => IsInformeEnabled && ConfirmedPedido != null);
+    public ICommand OpenFrotisCommand => new RelayCommand(_ => OpenFrotis(), _ => IsInformeEnabled && ConfirmedPedido != null);
 
     private static string? BrowseExcel()
     {
@@ -309,6 +313,22 @@ public class MainViewModel : ObservableObject
         OnPropertyChanged(nameof(IsHemostasiaLoaded));
     }
 
+    private void OpenFrotis()
+    {
+        if (ConfirmedPedido is null) return;
+        if (!_frotis.TryGetValue(ConfirmedPedido, out var vm))
+        {
+            vm = new FrotisViewModel();
+        }
+        var win = new FrotisWindow(vm) { Owner = Application.Current?.MainWindow };
+        var result = win.ShowDialog();
+        if (result == true)
+        {
+            _frotis[ConfirmedPedido] = vm;
+        }
+        OnPropertyChanged(nameof(IsFrotisLoaded));
+    }
+
     private void ClearAll()
     {
         var res = MessageBox.Show("¿Está seguro de limpiar todo? Esta acción no se puede deshacer.", "Confirmar", MessageBoxButton.YesNo, MessageBoxImage.Question);
@@ -320,6 +340,7 @@ public class MainViewModel : ObservableObject
         _quimicas.Clear();
         _orinas.Clear();
         _hemostasias.Clear();
+        _frotis.Clear();
         SelectedPedido = null;
         ConfirmedPedido = null;
         IsInformeEnabled = false;
