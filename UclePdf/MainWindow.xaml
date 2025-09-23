@@ -38,7 +38,6 @@
         <vm:MainViewModel />
     </Window.DataContext>
     <Grid>
-        <!-- Tabs -->
         <TabControl SelectedIndex="{Binding SelectedTabIndex, Mode=TwoWay}">
             <TabItem Header="Pedidos">
                 <Grid>
@@ -242,6 +241,20 @@
                                                 <Setter Property="Background" Value="#2E7D32"/>
                                             </DataTrigger>
                                             <DataTrigger Binding="{Binding IsCoproLoaded}" Value="False">
+                                                <Setter Property="Background" Value="#D32F2F"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
+                            </Button>
+                            <Button Content="Ehrlichiosis canina (IC)" Command="{Binding OpenEhrlichiosisCommand}">
+                                <Button.Style>
+                                    <Style TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsEhrlichiosisLoaded}" Value="True">
+                                                <Setter Property="Background" Value="#2E7D32"/>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding IsEhrlichiosisLoaded}" Value="False">
                                                 <Setter Property="Background" Value="#D32F2F"/>
                                             </DataTrigger>
                                         </Style.Triggers>

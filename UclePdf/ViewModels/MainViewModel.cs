@@ -79,6 +79,7 @@ public class MainViewModel : ObservableObject
                 OnPropertyChanged(nameof(IsHemostasiaLoaded));
                 OnPropertyChanged(nameof(IsFrotisLoaded));
                 OnPropertyChanged(nameof(IsCoproLoaded));
+                OnPropertyChanged(nameof(IsEhrlichiosisLoaded));
             }
         }
     }
@@ -106,12 +107,14 @@ public class MainViewModel : ObservableObject
     private readonly Dictionary<Pedido, HemostasiaViewModel> _hemostasias = new();
     private readonly Dictionary<Pedido, FrotisViewModel> _frotis = new();
     private readonly Dictionary<Pedido, CoproparasitologicoViewModel> _copro = new();
+    private readonly Dictionary<Pedido, EhrlichiosisViewModel> _ehrlichiosis = new();
     public bool IsHemogramaLoaded => ConfirmedPedido != null && _hemogramas.TryGetValue(ConfirmedPedido, out var hvm) && hvm.IsConfirmed && hvm.Items.Any(i => i.ValorRelativo.HasValue);
     public bool IsQuimicaLoaded => ConfirmedPedido != null && _quimicas.TryGetValue(ConfirmedPedido, out var qvm) && qvm.IsConfirmed && qvm.Items.Any(i => i.Valor.HasValue);
     public bool IsOrinaLoaded => ConfirmedPedido != null && _orinas.TryGetValue(ConfirmedPedido, out var ovm) && ovm.IsConfirmed && ovm.Items.Any(i => !string.IsNullOrWhiteSpace(i.Valor));
     public bool IsHemostasiaLoaded => ConfirmedPedido != null && _hemostasias.TryGetValue(ConfirmedPedido, out var htv) && htv.IsConfirmed && htv.Items.Any(i => i.Valor.HasValue);
     public bool IsFrotisLoaded => ConfirmedPedido != null && _frotis.TryGetValue(ConfirmedPedido, out var fr) && fr.IsConfirmed && !string.IsNullOrWhiteSpace(fr.Resultado);
     public bool IsCoproLoaded => ConfirmedPedido != null && _copro.TryGetValue(ConfirmedPedido, out var cp) && cp.IsConfirmed && cp.Items.Any(i => !string.IsNullOrWhiteSpace(i.Resultado));
+    public bool IsEhrlichiosisLoaded => ConfirmedPedido != null && _ehrlichiosis.TryGetValue(ConfirmedPedido, out var eh) && eh.IsConfirmed && eh.Items.Any(i => !string.IsNullOrWhiteSpace(i.Resultado));
 
     public IReadOnlyList<string> SucursalesOpciones { get; } = new[]
     {
@@ -190,6 +193,7 @@ public class MainViewModel : ObservableObject
     public ICommand OpenHemostasiaCommand => new RelayCommand(_ => OpenHemostasia(), _ => IsInformeEnabled && ConfirmedPedido != null);
     public ICommand OpenFrotisCommand => new RelayCommand(_ => OpenFrotis(), _ => IsInformeEnabled && ConfirmedPedido != null);
     public ICommand OpenCoproCommand => new RelayCommand(_ => OpenCopro(), _ => IsInformeEnabled && ConfirmedPedido != null);
+    public ICommand OpenEhrlichiosisCommand => new RelayCommand(_ => OpenEhrlichiosis(), _ => IsInformeEnabled && ConfirmedPedido != null);
 
     private static string? BrowseExcel()
     {
@@ -349,6 +353,22 @@ public class MainViewModel : ObservableObject
         OnPropertyChanged(nameof(IsCoproLoaded));
     }
 
+    private void OpenEhrlichiosis()
+    {
+        if (ConfirmedPedido is null) return;
+        if (!_ehrlichiosis.TryGetValue(ConfirmedPedido, out var vm))
+        {
+            vm = new EhrlichiosisViewModel();
+        }
+        var win = new EhrlichiosisWindow(vm) { Owner = Application.Current?.MainWindow };
+        var result = win.ShowDialog();
+        if (result == true)
+        {
+            _ehrlichiosis[ConfirmedPedido] = vm;
+        }
+        OnPropertyChanged(nameof(IsEhrlichiosisLoaded));
+    }
+
     private void ClearAll()
     {
         var res = MessageBox.Show("¿Está seguro de limpiar todo? Esta acción no se puede deshacer.", "Confirmar", MessageBoxButton.YesNo, MessageBoxImage.Question);
@@ -362,6 +382,7 @@ public class MainViewModel : ObservableObject
         _hemostasias.Clear();
         _frotis.Clear();
         _copro.Clear();
+        _ehrlichiosis.Clear();
         SelectedPedido = null;
         ConfirmedPedido = null;
         IsInformeEnabled = false;
