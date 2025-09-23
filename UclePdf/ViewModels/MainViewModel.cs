@@ -74,6 +74,7 @@ public class MainViewModel : ObservableObject
                 OnPropertyChanged(nameof(HeaderVeterinario));
                 OnPropertyChanged(nameof(HeaderSucursal));
                 OnPropertyChanged(nameof(IsHemogramaLoaded));
+                OnPropertyChanged(nameof(IsQuimicaLoaded));
             }
         }
     }
@@ -96,7 +97,9 @@ public class MainViewModel : ObservableObject
     public string? PathA { get => _pathA; set => SetProperty(ref _pathA, value); }
 
     private readonly Dictionary<Pedido, HemogramaViewModel> _hemogramas = new();
-    public bool IsHemogramaLoaded => ConfirmedPedido != null && _hemogramas.TryGetValue(ConfirmedPedido, out var vm) && vm.IsConfirmed && vm.Items.Any(i => i.ValorRelativo.HasValue);
+    private readonly Dictionary<Pedido, QuimicaViewModel> _quimicas = new();
+    public bool IsHemogramaLoaded => ConfirmedPedido != null && _hemogramas.TryGetValue(ConfirmedPedido, out var hvm) && hvm.IsConfirmed && hvm.Items.Any(i => i.ValorRelativo.HasValue);
+    public bool IsQuimicaLoaded => ConfirmedPedido != null && _quimicas.TryGetValue(ConfirmedPedido, out var qvm) && qvm.IsConfirmed && qvm.Items.Any(i => i.ValorHallado.HasValue);
 
     public IReadOnlyList<string> SucursalesOpciones { get; } = new[]
     {
@@ -170,6 +173,7 @@ public class MainViewModel : ObservableObject
     public ICommand ClearAllCommand => new RelayCommand(_ => ClearAll(), _ => Pedidos.Count > 0 && !IsBusy);
     public ICommand ConfirmSelectionCommand => new RelayCommand(_ => ConfirmSelection(), _ => !IsBusy);
     public ICommand OpenHemogramaCommand => new RelayCommand(_ => OpenHemograma(), _ => IsInformeEnabled && ConfirmedPedido != null);
+    public ICommand OpenQuimicaCommand => new RelayCommand(_ => OpenQuimica(), _ => IsInformeEnabled && ConfirmedPedido != null);
 
     private static string? BrowseExcel()
     {
@@ -249,6 +253,22 @@ public class MainViewModel : ObservableObject
         OnPropertyChanged(nameof(IsHemogramaLoaded));
     }
 
+    private void OpenQuimica()
+    {
+        if (ConfirmedPedido is null) return;
+        if (!_quimicas.TryGetValue(ConfirmedPedido, out var vm))
+        {
+            vm = new QuimicaViewModel();
+        }
+        var win = new QuimicaWindow(vm) { Owner = Application.Current?.MainWindow };
+        var result = win.ShowDialog();
+        if (result == true)
+        {
+            _quimicas[ConfirmedPedido] = vm;
+        }
+        OnPropertyChanged(nameof(IsQuimicaLoaded));
+    }
+
     private void ClearAll()
     {
         var res = MessageBox.Show("¿Está seguro de limpiar todo? Esta acción no se puede deshacer.", "Confirmar", MessageBoxButton.YesNo, MessageBoxImage.Question);
@@ -257,6 +277,7 @@ public class MainViewModel : ObservableObject
         Pedidos.Clear();
         _allPedidos.Clear();
         _hemogramas.Clear();
+        _quimicas.Clear();
         SelectedPedido = null;
         ConfirmedPedido = null;
         IsInformeEnabled = false;

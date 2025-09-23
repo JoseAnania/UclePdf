@@ -105,7 +105,7 @@
                                     </Grid.RowDefinitions>
 
                                     <TextBlock Text="Pedidos" FontWeight="Bold"/>
-                                    <DataGrid Grid.Row="1" ItemsSource="{Binding Pedidos}" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="False" SelectedItem="{Binding SelectedPedido, Mode=TwoWay}">
+                                    <DataGrid Grid.Row="1" ItemsSource="{Binding Pedidos}" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="False" SelectedItem="{Binding SelectedPedido, Mode=TwoWay}">
                                         <DataGrid.Columns>
                                             <DataGridTextColumn Header="Marca temporal" Binding="{Binding MarcaTemporal, StringFormat=dd/MM/yyyy HH:mm}" IsReadOnly="True"/>
                                             <DataGridTextColumn Header="Correo" Binding="{Binding CorreoElectronico}" IsReadOnly="True"/>
@@ -167,15 +167,26 @@
                             <Button Content="Hemograma" Command="{Binding OpenHemogramaCommand}">
                                 <Button.Style>
                                     <Style TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
-                                        <Setter Property="Content" Value="Hemograma"/>
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding IsHemogramaLoaded}" Value="True">
                                                 <Setter Property="Background" Value="#2E7D32"/>
-                                                <Setter Property="Content" Value="Editar Hemograma"/>
                                             </DataTrigger>
                                             <DataTrigger Binding="{Binding IsHemogramaLoaded}" Value="False">
                                                 <Setter Property="Background" Value="#D32F2F"/>
-                                                <Setter Property="Content" Value="Hemograma"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
+                            </Button>
+                            <Button Content="Química sanguínea" Command="{Binding OpenQuimicaCommand}">
+                                <Button.Style>
+                                    <Style TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsQuimicaLoaded}" Value="True">
+                                                <Setter Property="Background" Value="#2E7D32"/>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding IsQuimicaLoaded}" Value="False">
+                                                <Setter Property="Background" Value="#D32F2F"/>
                                             </DataTrigger>
                                         </Style.Triggers>
                                     </Style>

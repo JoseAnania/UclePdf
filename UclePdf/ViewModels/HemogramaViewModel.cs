@@ -43,6 +43,9 @@ public class HemogramaItem : INotifyPropertyChanged
 
     public double? ValorAbsoluto => ComputeAbsoluto?.Invoke(_owner);
 
+    // Indica si ValorAbsoluto es calculado automáticamente
+    public bool EsCalculadoAbsoluto => ComputeAbsoluto != null;
+
     public event PropertyChangedEventHandler? PropertyChanged;
     protected bool SetProperty<T>(ref T field, T value, [CallerMemberName] string? name = null)
     {
