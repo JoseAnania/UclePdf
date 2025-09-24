@@ -82,6 +82,7 @@ public class MainViewModel : ObservableObject
                 OnPropertyChanged(nameof(IsEhrlichiosisLoaded));
                 OnPropertyChanged(nameof(IsRaspajeLoaded));
                 OnPropertyChanged(nameof(IsReticulocitosLoaded));
+                OnPropertyChanged(nameof(IsProteinuriaLoaded));
             }
         }
     }
@@ -112,6 +113,7 @@ public class MainViewModel : ObservableObject
     private readonly Dictionary<Pedido, EhrlichiosisViewModel> _ehrlichiosis = new();
     private readonly Dictionary< Pedido, RaspajePielViewModel> _raspajes = new();
     private readonly Dictionary<Pedido, ReticulocitosViewModel> _reticulocitos = new();
+    private readonly Dictionary<Pedido, ProteinuriaCreatininuriaViewModel> _proteinuria = new();
     public bool IsHemogramaLoaded => ConfirmedPedido != null && _hemogramas.TryGetValue(ConfirmedPedido, out var hvm) && hvm.IsConfirmed && hvm.Items.Any(i => i.ValorRelativo.HasValue);
     public bool IsQuimicaLoaded => ConfirmedPedido != null && _quimicas.TryGetValue(ConfirmedPedido, out var qvm) && qvm.IsConfirmed && qvm.Items.Any(i => i.Valor.HasValue);
     public bool IsOrinaLoaded => ConfirmedPedido != null && _orinas.TryGetValue(ConfirmedPedido, out var ovm) && ovm.IsConfirmed && ovm.Items.Any(i => !string.IsNullOrWhiteSpace(i.Valor));
@@ -121,6 +123,7 @@ public class MainViewModel : ObservableObject
     public bool IsEhrlichiosisLoaded => ConfirmedPedido != null && _ehrlichiosis.TryGetValue(ConfirmedPedido, out var eh) && eh.IsConfirmed && eh.Items.Any(i => !string.IsNullOrWhiteSpace(i.Resultado));
     public bool IsRaspajeLoaded => ConfirmedPedido != null && _raspajes.TryGetValue(ConfirmedPedido, out var rp) && rp.IsConfirmed && rp.Items.Any(i => !string.IsNullOrWhiteSpace(i.Resultado));
     public bool IsReticulocitosLoaded => ConfirmedPedido != null && _reticulocitos.TryGetValue(ConfirmedPedido, out var rt) && rt.IsConfirmed && rt.Items.Any(i => i.Valor.HasValue);
+    public bool IsProteinuriaLoaded => ConfirmedPedido != null && _proteinuria.TryGetValue(ConfirmedPedido, out var pr) && pr.IsConfirmed && pr.Items.Any(i => i.Valor.HasValue);
 
     public IReadOnlyList<string> SucursalesOpciones { get; } = new[]
     {
@@ -202,6 +205,7 @@ public class MainViewModel : ObservableObject
     public ICommand OpenEhrlichiosisCommand => new RelayCommand(_ => OpenEhrlichiosis(), _ => IsInformeEnabled && ConfirmedPedido != null);
     public ICommand OpenRaspajeCommand => new RelayCommand(_ => OpenRaspaje(), _ => IsInformeEnabled && ConfirmedPedido != null);
     public ICommand OpenReticulocitosCommand => new RelayCommand(_ => OpenReticulocitos(), _ => IsInformeEnabled && ConfirmedPedido != null);
+    public ICommand OpenProteinuriaCommand => new RelayCommand(_ => OpenProteinuria(), _ => IsInformeEnabled && ConfirmedPedido != null);
 
     private static string? BrowseExcel()
     {
@@ -409,6 +413,22 @@ public class MainViewModel : ObservableObject
         OnPropertyChanged(nameof(IsReticulocitosLoaded));
     }
 
+    private void OpenProteinuria()
+    {
+        if (ConfirmedPedido is null) return;
+        if (!_proteinuria.TryGetValue(ConfirmedPedido, out var vm))
+        {
+            vm = new ProteinuriaCreatininuriaViewModel();
+        }
+        var win = new ProteinuriaCreatininuriaWindow(vm) { Owner = Application.Current?.MainWindow };
+        var result = win.ShowDialog();
+        if (result == true)
+        {
+            _proteinuria[ConfirmedPedido] = vm;
+        }
+        OnPropertyChanged(nameof(IsProteinuriaLoaded));
+    }
+
     private void ClearAll()
     {
         var res = MessageBox.Show("¿Está seguro de limpiar todo? Esta acción no se puede deshacer.", "Confirmar", MessageBoxButton.YesNo, MessageBoxImage.Question);
@@ -425,6 +445,7 @@ public class MainViewModel : ObservableObject
         _ehrlichiosis.Clear();
         _raspajes.Clear();
         _reticulocitos.Clear();
+        _proteinuria.Clear();
         SelectedPedido = null;
         ConfirmedPedido = null;
         IsInformeEnabled = false;

@@ -289,6 +289,20 @@
                                     </Style>
                                 </Button.Style>
                             </Button>
+                            <Button Content="Relacion proteinuria/creatininuria" Command="{Binding OpenProteinuriaCommand}">
+                                <Button.Style>
+                                    <Style TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsProteinuriaLoaded}" Value="True">
+                                                <Setter Property="Background" Value="#2E7D32"/>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding IsProteinuriaLoaded}" Value="False">
+                                                <Setter Property="Background" Value="#D32F2F"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
+                            </Button>
                         </WrapPanel>
                     </StackPanel>
                 </Grid>

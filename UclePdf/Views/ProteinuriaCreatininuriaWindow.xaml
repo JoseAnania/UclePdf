@@ -1,0 +1,85 @@
+<Window x:Class="UclePdf.Views.ProteinuriaCreatininuriaWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="clr-namespace:UclePdf.ViewModels"
+        xmlns:conv="clr-namespace:UclePdf.Converters"
+        Title="Relacion Proteinuria/Creatininuria" Height="520" Width="820">
+    <Window.Resources>
+        <conv:StringToDoubleInvariantConverter x:Key="StringToDouble"/>
+        <Style x:Key="PrimaryButton" TargetType="Button">
+            <Setter Property="Padding" Value="20,10"/>
+            <Setter Property="Margin" Value="0,0,8,0"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Background" Value="#FF1976D2"/>
+            <Setter Property="Foreground" Value="White"/>
+        </Style>
+        <Style x:Key="DangerButton" TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
+            <Setter Property="Background" Value="#FFD32F2F"/>
+        </Style>
+        <Style x:Key="RightAlignedTextBox" TargetType="TextBox">
+            <Setter Property="HorizontalContentAlignment" Value="Right"/>
+        </Style>
+        <Style x:Key="MultilineRef" TargetType="TextBlock">
+            <Setter Property="TextWrapping" Value="Wrap"/>
+        </Style>
+        <!-- Estilo para ocultar texto de referencia en filas sin referencia -->
+        <Style x:Key="ReferenciaCellStyle" TargetType="TextBlock" BasedOn="{StaticResource MultilineRef}">
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding Referencia}" Value="">
+                    <Setter Property="Visibility" Value="Collapsed"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Referencia}" Value="{x:Null}">
+                    <Setter Property="Visibility" Value="Collapsed"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+    </Window.Resources>
+    <Window.DataContext>
+        <vm:ProteinuriaCreatininuriaViewModel/>
+    </Window.DataContext>
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <DataGrid Grid.Row="0" ItemsSource="{Binding Items}" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Determinacion" Binding="{Binding Determinacion}" IsReadOnly="True" Width="200"/>
+                <DataGridTextColumn Header="Valor hallado" Width="160">
+                    <DataGridTextColumn.Binding>
+                        <Binding Path="Valor" Mode="TwoWay" UpdateSourceTrigger="PropertyChanged" Converter="{StaticResource StringToDouble}">
+                            <Binding.ValidationRules>
+                                <ExceptionValidationRule/>
+                            </Binding.ValidationRules>
+                        </Binding>
+                    </DataGridTextColumn.Binding>
+                    <DataGridTextColumn.EditingElementStyle>
+                        <Style TargetType="TextBox" BasedOn="{StaticResource RightAlignedTextBox}">
+                            <EventSetter Event="PreviewTextInput" Handler="OnPreviewTextInputNumeric"/>
+                            <EventSetter Event="PreviewKeyDown" Handler="OnPreviewKeyDownNumeric"/>
+                        </Style>
+                    </DataGridTextColumn.EditingElementStyle>
+                </DataGridTextColumn>
+                <DataGridTemplateColumn Header="Valores de referencia" Width="*">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Referencia}" Style="{StaticResource ReferenciaCellStyle}"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <StackPanel Grid.Row="1" Orientation="Vertical" Margin="0,10,0,0">
+            <TextBlock Text="Observaciones" FontWeight="Bold"/>
+            <TextBox Text="{Binding Observaciones, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" AcceptsReturn="True" Height="120" TextWrapping="Wrap"/>
+        </StackPanel>
+
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,12,0,0">
+            <Button Content="Confirmar" Width="160" Height="36" Click="OnConfirmClick" Style="{StaticResource PrimaryButton}"/>
+            <Button Content="Limpiar" Width="140" Height="36" Click="OnClearClick" Style="{StaticResource DangerButton}"/>
+        </StackPanel>
+    </Grid>
+</Window>
