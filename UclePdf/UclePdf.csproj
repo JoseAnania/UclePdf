@@ -2,10 +2,14 @@
 
   <ItemGroup>
     <None Remove="Assets\logo_ucle.png" />
+    <None Remove="Assets\signature_rocio.png" />
   </ItemGroup>
 
   <ItemGroup>
     <Content Include="Assets\logo_ucle.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Assets\signature_rocio.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

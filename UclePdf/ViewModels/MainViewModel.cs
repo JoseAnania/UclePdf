@@ -521,6 +521,11 @@ public class MainViewModel : ObservableObject
             if (File.Exists(logoPath))
                 logoBytes = File.ReadAllBytes(logoPath);
 
+            byte[]? signatureBytes = null;
+            var sigPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "signature_rocio.png");
+            if (File.Exists(sigPath))
+                signatureBytes = File.ReadAllBytes(sigPath);
+
             HemogramaData? hemoData = null;
             if (IsHemogramaLoaded && _hemogramas.TryGetValue(ConfirmedPedido!, out var hvm))
             {
@@ -683,7 +688,7 @@ public class MainViewModel : ObservableObject
                 HeaderPropietario,
                 HeaderVeterinario,
                 HeaderSucursal,
-                Bioquimico ?? string.Empty), hemoData, quimicaData, orinaData, hemostasiaData, frotisData, coproData, ehrlichiosisData, raspajeData, reticulocitosData, proteinuriaData, vifvilefData, ionogramaData, citologicoData, liquidoPuncionData);
+                Bioquimico ?? string.Empty), hemoData, quimicaData, orinaData, hemostasiaData, frotisData, coproData, ehrlichiosisData, raspajeData, reticulocitosData, proteinuriaData, vifvilefData, ionogramaData, citologicoData, liquidoPuncionData, signatureBytes);
             var preview = new UclePdf.Views.PreviewPdfWindow(pdfBytes) { Owner = Application.Current?.MainWindow };
             preview.ShowDialog();
         }

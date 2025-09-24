@@ -62,12 +62,13 @@ public interface IPdfReportService
 {
     string GenerateBasicHeaderPdf(byte[]? headerImageBytes, string outputDirectory);
     byte[] GenerateBasicHeaderPdfBytes(byte[]? headerImageBytes);
-    byte[] GenerateInformePdfBytes(byte[]? headerImageBytes, InformeHeaderData headerData);
+    byte[] GenerateInformePdfBytes(byte[]? headerImageBytes, InformeHeaderData headerData, byte[]? signatureImageBytes = null);
     byte[] GenerateInformePdfBytes(byte[]? headerImageBytes, InformeHeaderData headerData,
         HemogramaData? hemograma, QuimicaData? quimica = null, OrinaData? orina = null, HemostasiaData? hemostasia = null,
         FrotisData? frotis = null, CoproData? copro = null, EhrlichiosisData? ehrlichiosis = null, RaspajeData? raspaje = null,
         ReticulocitosData? reticulocitos = null, ProteinuriaData? proteinuria = null, VifVilefData? vifvilef = null,
-        IonogramaData? ionograma = null, CitologicoData? citologico = null, LiquidoPuncionData? liquidoPuncion = null);
+        IonogramaData? ionograma = null, CitologicoData? citologico = null, LiquidoPuncionData? liquidoPuncion = null,
+        byte[]? signatureImageBytes = null);
 }
 
 public class PdfReportService : IPdfReportService
@@ -93,7 +94,8 @@ public class PdfReportService : IPdfReportService
     private void ComposeFull(IDocumentContainer container, byte[]? headerImageBytes, InformeHeaderData data,
         HemogramaData? hemograma, QuimicaData? quimica, OrinaData? orina, HemostasiaData? hemostasia, FrotisData? frotis,
         CoproData? copro, EhrlichiosisData? ehrlichiosis, RaspajeData? raspaje, ReticulocitosData? reticulocitos,
-        ProteinuriaData? proteinuria, VifVilefData? vifvilef, IonogramaData? ionograma, CitologicoData? citologico, LiquidoPuncionData? liquidoPuncion)
+        ProteinuriaData? proteinuria, VifVilefData? vifvilef, IonogramaData? ionograma, CitologicoData? citologico, LiquidoPuncionData? liquidoPuncion,
+        byte[]? signatureImageBytes)
     {
         container.Page(page =>
         {
@@ -677,8 +679,17 @@ public class PdfReportService : IPdfReportService
                     }
                 }
 
-                // Línea final separadora
+                // Línea final separadora siempre al terminar las secciones
                 col.Item().PaddingTop(16).Element(e => e.Height(1).Background(Colors.Grey.Lighten2));
+
+                // Firma digital debajo de la línea final (sin repetir el nombre, ya está en la imagen)
+                if (signatureImageBytes is { Length: > 0 })
+                {
+                    col.Item().PaddingTop(6).AlignRight().Width(150).Element(e =>
+                    {
+                        e.Height(65).Image(signatureImageBytes).FitHeight();
+                    });
+                }
             });
         });
     }
@@ -708,14 +719,18 @@ public class PdfReportService : IPdfReportService
         => Document.Create(c => ComposeSimple(c, headerImageBytes)).GeneratePdf();
 
     public byte[] GenerateInformePdfBytes(byte[]? headerImageBytes, InformeHeaderData headerData)
-        => Document.Create(c => ComposeFull(c, headerImageBytes, headerData, null, null, null, null, null, null, null, null, null, null, null, null, null, null)).GeneratePdf();
+        => Document.Create(c => ComposeFull(c, headerImageBytes, headerData, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null)).GeneratePdf();
+
+    public byte[] GenerateInformePdfBytes(byte[]? headerImageBytes, InformeHeaderData headerData, byte[]? signatureImageBytes = null)
+        => Document.Create(c => ComposeFull(c, headerImageBytes, headerData, null, null, null, null, null, null, null, null, null, null, null, null, null, null, signatureImageBytes)).GeneratePdf();
 
     public byte[] GenerateInformePdfBytes(byte[]? headerImageBytes, InformeHeaderData headerData,
         HemogramaData? hemograma, QuimicaData? quimica = null, OrinaData? orina = null, HemostasiaData? hemostasia = null,
         FrotisData? frotis = null, CoproData? copro = null, EhrlichiosisData? ehrlichiosis = null, RaspajeData? raspaje = null,
         ReticulocitosData? reticulocitos = null, ProteinuriaData? proteinuria = null, VifVilefData? vifvilef = null,
-        IonogramaData? ionograma = null, CitologicoData? citologico = null, LiquidoPuncionData? liquidoPuncion = null)
-        => Document.Create(c => ComposeFull(c, headerImageBytes, headerData, hemograma, quimica, orina, hemostasia, frotis, copro, ehrlichiosis, raspaje, reticulocitos, proteinuria, vifvilef, ionograma, citologico, liquidoPuncion)).GeneratePdf();
+        IonogramaData? ionograma = null, CitologicoData? citologico = null, LiquidoPuncionData? liquidoPuncion = null,
+        byte[]? signatureImageBytes = null)
+        => Document.Create(c => ComposeFull(c, headerImageBytes, headerData, hemograma, quimica, orina, hemostasia, frotis, copro, ehrlichiosis, raspaje, reticulocitos, proteinuria, vifvilef, ionograma, citologico, liquidoPuncion, signatureImageBytes)).GeneratePdf();
 
     public string GenerateBasicHeaderPdf(byte[]? headerImageBytes, string outputDirectory)
     {
