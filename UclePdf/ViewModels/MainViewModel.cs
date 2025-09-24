@@ -655,6 +655,27 @@ public class MainViewModel : ObservableObject
                     citologicoData = new CitologicoData(rowsCi, civm.Observaciones);
             }
 
+            LiquidoPuncionData? liquidoPuncionData = null;
+            if (IsLiquidoPuncionLoaded && _liquidoPuncion.TryGetValue(ConfirmedPedido!, out var lpvm))
+            {
+                var textoRows = lpvm.Items.Where(i => !string.IsNullOrWhiteSpace(i.Resultado))
+                    .Select(i => new LiquidoPuncionTextoRow(i.Determinacion, i.Resultado))
+                    .ToList();
+                var bioqRows = new List<LiquidoPuncionBioqRow>();
+                void AddBioq(string det, double? val, string unidades)
+                { if (val.HasValue) bioqRows.Add(new LiquidoPuncionBioqRow(det, val, unidades)); }
+                AddBioq("Urea", lpvm.Urea, "mg/dL");
+                AddBioq("Creatinina", lpvm.Creatinina, "mg/dL");
+                AddBioq("FAL", lpvm.FAL, "UI/L");
+                AddBioq("Colesterol Total", lpvm.ColesterolTotal, "mg/dL");
+                AddBioq("Triglicéridos", lpvm.Trigliceridos, "mg/dL");
+                AddBioq("Bilirrubina Total", lpvm.BilirrubinaTotal, "mg/dL");
+                AddBioq("Bilirrubina Directa", lpvm.BilirrubinaDirecta, "mg/dL");
+                AddBioq("Bilirrubina Indirecta", lpvm.BilirrubinaIndirecta, "mg/dL");
+                if (textoRows.Count > 0 || bioqRows.Count > 0)
+                    liquidoPuncionData = new LiquidoPuncionData(textoRows, bioqRows, lpvm.Observaciones);
+            }
+
             var pdfBytes = _pdfService.GenerateInformePdfBytes(logoBytes, new InformeHeaderData(
                 HeaderFecha,
                 HeaderPaciente,
@@ -662,7 +683,7 @@ public class MainViewModel : ObservableObject
                 HeaderPropietario,
                 HeaderVeterinario,
                 HeaderSucursal,
-                Bioquimico ?? string.Empty), hemoData, quimicaData, orinaData, hemostasiaData, frotisData, coproData, ehrlichiosisData, raspajeData, reticulocitosData, proteinuriaData, vifvilefData, ionogramaData, citologicoData);
+                Bioquimico ?? string.Empty), hemoData, quimicaData, orinaData, hemostasiaData, frotisData, coproData, ehrlichiosisData, raspajeData, reticulocitosData, proteinuriaData, vifvilefData, ionogramaData, citologicoData, liquidoPuncionData);
             var preview = new UclePdf.Views.PreviewPdfWindow(pdfBytes) { Owner = Application.Current?.MainWindow };
             preview.ShowDialog();
         }

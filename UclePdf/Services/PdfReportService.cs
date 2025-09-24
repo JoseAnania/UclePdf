@@ -53,6 +53,10 @@ public record IonogramaData(List<IonogramaRow> Rows, string? Observaciones, stri
 // Nuevo: Estudio Citológico
 public record CitologicoRow(string Determinacion, string? Resultado);
 public record CitologicoData(List<CitologicoRow> Rows, string? Observaciones);
+// Nuevas estructuras para Líquido de Punción
+public record LiquidoPuncionTextoRow(string Determinacion, string? Resultado);
+public record LiquidoPuncionBioqRow(string Determinacion, double? Valor, string Unidades);
+public record LiquidoPuncionData(List<LiquidoPuncionTextoRow> TextoRows, List<LiquidoPuncionBioqRow> BioqRows, string? Observaciones);
 
 public interface IPdfReportService
 {
@@ -63,7 +67,7 @@ public interface IPdfReportService
         HemogramaData? hemograma, QuimicaData? quimica = null, OrinaData? orina = null, HemostasiaData? hemostasia = null,
         FrotisData? frotis = null, CoproData? copro = null, EhrlichiosisData? ehrlichiosis = null, RaspajeData? raspaje = null,
         ReticulocitosData? reticulocitos = null, ProteinuriaData? proteinuria = null, VifVilefData? vifvilef = null,
-        IonogramaData? ionograma = null, CitologicoData? citologico = null);
+        IonogramaData? ionograma = null, CitologicoData? citologico = null, LiquidoPuncionData? liquidoPuncion = null);
 }
 
 public class PdfReportService : IPdfReportService
@@ -89,7 +93,7 @@ public class PdfReportService : IPdfReportService
     private void ComposeFull(IDocumentContainer container, byte[]? headerImageBytes, InformeHeaderData data,
         HemogramaData? hemograma, QuimicaData? quimica, OrinaData? orina, HemostasiaData? hemostasia, FrotisData? frotis,
         CoproData? copro, EhrlichiosisData? ehrlichiosis, RaspajeData? raspaje, ReticulocitosData? reticulocitos,
-        ProteinuriaData? proteinuria, VifVilefData? vifvilef, IonogramaData? ionograma, CitologicoData? citologico)
+        ProteinuriaData? proteinuria, VifVilefData? vifvilef, IonogramaData? ionograma, CitologicoData? citologico, LiquidoPuncionData? liquidoPuncion)
     {
         container.Page(page =>
         {
@@ -628,6 +632,51 @@ public class PdfReportService : IPdfReportService
                     }
                 }
 
+                // Líquido de Punción
+                if (liquidoPuncion != null && (liquidoPuncion.TextoRows.Any(r => !string.IsNullOrWhiteSpace(r.Resultado)) || liquidoPuncion.BioqRows.Any(r => r.Valor.HasValue)))
+                {
+                    col.Item().PaddingTop(14).Element(e => e.Height(1).Background(Colors.Grey.Lighten2));
+                    col.Item().PaddingTop(10).Element(e => e.AlignCenter().Text(t => t.Span("LÍQUIDO DE PUNCIÓN").FontSize(10).SemiBold()));
+                    col.Item().Element(e => e.Height(1).Background(Colors.Grey.Lighten2));
+
+                    if (liquidoPuncion.TextoRows.Any(r => !string.IsNullOrWhiteSpace(r.Resultado)))
+                    {
+                        col.Item().Table(table =>
+                        {
+                            table.ColumnsDefinition(c => { c.RelativeColumn(1.5f); c.RelativeColumn(); });
+                            void H(string t) { var cell = table.Cell(); cell.Element(x => x.Background(Colors.Grey.Lighten3).Padding(3).Text(t).FontSize(8).SemiBold()); }
+                            H("Determinación"); H("Resultado");
+                            foreach (var r in liquidoPuncion.TextoRows.Where(r => !string.IsNullOrWhiteSpace(r.Resultado)))
+                            {
+                                table.Cell().Element(c => c.Padding(3).Text(r.Determinacion).FontSize(8.1f));
+                                table.Cell().Element(c => c.Padding(3).Text(r.Resultado!).FontSize(8f));
+                            }
+                        });
+                    }
+
+                    if (liquidoPuncion.BioqRows.Any(r => r.Valor.HasValue))
+                    {
+                        // (Título eliminado para evitar redundancia)
+                        col.Item().Table(table =>
+                        {
+                            table.ColumnsDefinition(c => { c.RelativeColumn(1.2f); c.ConstantColumn(60); c.RelativeColumn(); });
+                            void HB(string t) { var cell = table.Cell(); cell.Element(x => x.Background(Colors.Grey.Lighten3).Padding(3).Text(t).FontSize(8).SemiBold()); }
+                            HB("Bioquímica"); HB("Valor"); HB("Unidades");
+                            foreach (var r in liquidoPuncion.BioqRows.Where(r => r.Valor.HasValue))
+                            {
+                                table.Cell().Element(c => c.Padding(3).Text(r.Determinacion).FontSize(8f));
+                                table.Cell().Element(c => c.Padding(3).Text(Format(r.Valor)).FontSize(8f));
+                                table.Cell().Element(c => c.Padding(3).Text(r.Unidades).FontSize(8f).FontColor(Colors.Grey.Darken2));
+                            }
+                        });
+                    }
+
+                    if (!string.IsNullOrWhiteSpace(liquidoPuncion.Observaciones))
+                    {
+                        col.Item().PaddingTop(6).Element(b => b.Background(Colors.Grey.Lighten4).Padding(6).Text("Obs: " + liquidoPuncion.Observaciones).FontSize(8f));
+                    }
+                }
+
                 // Línea final separadora
                 col.Item().PaddingTop(16).Element(e => e.Height(1).Background(Colors.Grey.Lighten2));
             });
@@ -659,14 +708,14 @@ public class PdfReportService : IPdfReportService
         => Document.Create(c => ComposeSimple(c, headerImageBytes)).GeneratePdf();
 
     public byte[] GenerateInformePdfBytes(byte[]? headerImageBytes, InformeHeaderData headerData)
-        => Document.Create(c => ComposeFull(c, headerImageBytes, headerData, null, null, null, null, null, null, null, null, null, null, null, null, null)).GeneratePdf();
+        => Document.Create(c => ComposeFull(c, headerImageBytes, headerData, null, null, null, null, null, null, null, null, null, null, null, null, null, null)).GeneratePdf();
 
     public byte[] GenerateInformePdfBytes(byte[]? headerImageBytes, InformeHeaderData headerData,
         HemogramaData? hemograma, QuimicaData? quimica = null, OrinaData? orina = null, HemostasiaData? hemostasia = null,
         FrotisData? frotis = null, CoproData? copro = null, EhrlichiosisData? ehrlichiosis = null, RaspajeData? raspaje = null,
         ReticulocitosData? reticulocitos = null, ProteinuriaData? proteinuria = null, VifVilefData? vifvilef = null,
-        IonogramaData? ionograma = null, CitologicoData? citologico = null)
-        => Document.Create(c => ComposeFull(c, headerImageBytes, headerData, hemograma, quimica, orina, hemostasia, frotis, copro, ehrlichiosis, raspaje, reticulocitos, proteinuria, vifvilef, ionograma, citologico)).GeneratePdf();
+        IonogramaData? ionograma = null, CitologicoData? citologico = null, LiquidoPuncionData? liquidoPuncion = null)
+        => Document.Create(c => ComposeFull(c, headerImageBytes, headerData, hemograma, quimica, orina, hemostasia, frotis, copro, ehrlichiosis, raspaje, reticulocitos, proteinuria, vifvilef, ionograma, citologico, liquidoPuncion)).GeneratePdf();
 
     public string GenerateBasicHeaderPdf(byte[]? headerImageBytes, string outputDirectory)
     {
