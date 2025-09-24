@@ -618,6 +618,43 @@ public class MainViewModel : ObservableObject
                     reticulocitosData = new ReticulocitosData(rowsReti, rtvm.Observaciones);
             }
 
+            ProteinuriaData? proteinuriaData = null;
+            if (IsProteinuriaLoaded && _proteinuria.TryGetValue(ConfirmedPedido!, out var pvm))
+            {
+                var rowsP = pvm.Items.Where(i => i.Valor.HasValue)
+                    .Select(i => new ProteinuriaRow(i.Determinacion, i.Valor, i.Referencia))
+                    .ToList();
+                if (rowsP.Count > 0)
+                    proteinuriaData = new ProteinuriaData(rowsP, pvm.Observaciones, pvm.ReferenciasBloque);
+            }
+
+            VifVilefData? vifvilefData = null;
+            if (IsVifVilefLoaded && _vifvilef.TryGetValue(ConfirmedPedido!, out var vvvm))
+            {
+                if ((vvvm.VifResultado != null && vvvm.VifResultado != "Sin seleccion") || (vvvm.VilefResultado != null && vvvm.VilefResultado != "Sin seleccion"))
+                    vifvilefData = new VifVilefData(vvvm.VifResultado, vvvm.VilefResultado, vvvm.Observaciones);
+            }
+
+            IonogramaData? ionogramaData = null;
+            if (IsIonogramaLoaded && _ionograma.TryGetValue(ConfirmedPedido!, out var ionvm))
+            {
+                var rowsI = ionvm.Items.Where(i => i.Valor.HasValue)
+                    .Select(i => new IonogramaRow(i.Determinacion, i.Valor, i.RefCanino, i.RefFelino))
+                    .ToList();
+                if (rowsI.Count > 0)
+                    ionogramaData = new IonogramaData(rowsI, ionvm.Observaciones, HeaderLinea2);
+            }
+
+            CitologicoData? citologicoData = null;
+            if (IsCitologicoLoaded && _citologico.TryGetValue(ConfirmedPedido!, out var civm))
+            {
+                var rowsCi = civm.Items.Where(i => !string.IsNullOrWhiteSpace(i.Resultado))
+                    .Select(i => new CitologicoRow(i.Determinacion, i.Resultado))
+                    .ToList();
+                if (rowsCi.Count > 0)
+                    citologicoData = new CitologicoData(rowsCi, civm.Observaciones);
+            }
+
             var pdfBytes = _pdfService.GenerateInformePdfBytes(logoBytes, new InformeHeaderData(
                 HeaderFecha,
                 HeaderPaciente,
@@ -625,7 +662,7 @@ public class MainViewModel : ObservableObject
                 HeaderPropietario,
                 HeaderVeterinario,
                 HeaderSucursal,
-                Bioquimico ?? string.Empty), hemoData, quimicaData, orinaData, hemostasiaData, frotisData, coproData, ehrlichiosisData, raspajeData, reticulocitosData);
+                Bioquimico ?? string.Empty), hemoData, quimicaData, orinaData, hemostasiaData, frotisData, coproData, ehrlichiosisData, raspajeData, reticulocitosData, proteinuriaData, vifvilefData, ionogramaData, citologicoData);
             var preview = new UclePdf.Views.PreviewPdfWindow(pdfBytes) { Owner = Application.Current?.MainWindow };
             preview.ShowDialog();
         }
