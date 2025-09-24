@@ -552,6 +552,72 @@ public class MainViewModel : ObservableObject
                     quimicaData = new QuimicaData(rowsQ, qvm.Observaciones, HeaderLinea2);
             }
 
+            OrinaData? orinaData = null;
+            if (IsOrinaLoaded && _orinas.TryGetValue(ConfirmedPedido!, out var orvm))
+            {
+                var rowsO = orvm.Items
+                    .Where(i => !string.IsNullOrWhiteSpace(i.Valor))
+                    .Select(i => new OrinaRow(i.Seccion, i.Determinacion, i.Valor, i.RefCaninos, i.RefFelinos, i.TopSeparator))
+                    .ToList();
+                if (rowsO.Count > 0)
+                    orinaData = new OrinaData(rowsO, orvm.Observaciones, HeaderLinea2);
+            }
+
+            HemostasiaData? hemostasiaData = null;
+            if (IsHemostasiaLoaded && _hemostasias.TryGetValue(ConfirmedPedido!, out var hstv))
+            {
+                var rowsH = hstv.Items.Where(i => i.Valor.HasValue)
+                    .Select(i => new HemostasiaRow(i.Determinacion, i.Valor, i.Referencia))
+                    .ToList();
+                if (rowsH.Count > 0)
+                    hemostasiaData = new HemostasiaData(rowsH, hstv.Observaciones);
+            }
+
+            FrotisData? frotisData = null;
+            if (IsFrotisLoaded && _frotis.TryGetValue(ConfirmedPedido!, out var fvm) && !string.IsNullOrWhiteSpace(fvm.Resultado))
+            {
+                frotisData = new FrotisData(fvm.Resultado);
+            }
+
+            CoproData? coproData = null;
+            if (IsCoproLoaded && _copro.TryGetValue(ConfirmedPedido!, out var cpvm))
+            {
+                var rowsC = cpvm.Items.Where(i => !string.IsNullOrWhiteSpace(i.Resultado))
+                    .Select(i => new CoproRow(i.Determinacion, i.Resultado)).ToList();
+                if (rowsC.Count > 0)
+                    coproData = new CoproData(rowsC, cpvm.Observaciones);
+            }
+
+            EhrlichiosisData? ehrlichiosisData = null;
+            if (IsEhrlichiosisLoaded && _ehrlichiosis.TryGetValue(ConfirmedPedido!, out var ehvm))
+            {
+                var rowsE = ehvm.Items.Where(i => !string.IsNullOrWhiteSpace(i.Resultado) && i.Resultado != "Sin seleccion")
+                    .Select(i => new EhrlichiosisRow(i.Tecnica, i.Resultado))
+                    .ToList();
+                if (rowsE.Count > 0)
+                    ehrlichiosisData = new EhrlichiosisData(rowsE, ehvm.Observaciones);
+            }
+
+            RaspajeData? raspajeData = null;
+            if (IsRaspajeLoaded && _raspajes.TryGetValue(ConfirmedPedido!, out var rspvm))
+            {
+                var rowsR = rspvm.Items.Where(i => !string.IsNullOrWhiteSpace(i.Resultado))
+                    .Select(i => new RaspajeRow(i.Determinacion, i.Resultado))
+                    .ToList();
+                if (rowsR.Count > 0)
+                    raspajeData = new RaspajeData(rowsR, rspvm.Observaciones);
+            }
+
+            ReticulocitosData? reticulocitosData = null;
+            if (IsReticulocitosLoaded && _reticulocitos.TryGetValue(ConfirmedPedido!, out var rtvm))
+            {
+                var rowsReti = rtvm.Items.Where(i => i.Valor.HasValue)
+                    .Select(i => new ReticulocitosRow(i.Determinacion, i.Valor, i.Referencia))
+                    .ToList();
+                if (rowsReti.Count > 0)
+                    reticulocitosData = new ReticulocitosData(rowsReti, rtvm.Observaciones);
+            }
+
             var pdfBytes = _pdfService.GenerateInformePdfBytes(logoBytes, new InformeHeaderData(
                 HeaderFecha,
                 HeaderPaciente,
@@ -559,7 +625,7 @@ public class MainViewModel : ObservableObject
                 HeaderPropietario,
                 HeaderVeterinario,
                 HeaderSucursal,
-                Bioquimico ?? string.Empty), hemoData, quimicaData);
+                Bioquimico ?? string.Empty), hemoData, quimicaData, orinaData, hemostasiaData, frotisData, coproData, ehrlichiosisData, raspajeData, reticulocitosData);
             var preview = new UclePdf.Views.PreviewPdfWindow(pdfBytes) { Owner = Application.Current?.MainWindow };
             preview.ShowDialog();
         }
