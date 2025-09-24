@@ -84,7 +84,7 @@ public class HemogramaViewModel : INotifyPropertyChanged
             return it;
         }
 
-        var erit = Add("Eritrocitos", "millones/mm3", "5,5 - 8,5", "5,0 - 10,0");
+        var erit = Add("Eritrocitos", "M/mm3", "5,5 - 8,5", "5,0 - 10,0");
         var hemoGlob = Add("Hemoglobina", "g/dl", "12,0 - 18,0", "9,0 - 15,0");
         var hematoc = Add("Hematocrito", "%", "37-55", "27-50");
         var mcv = Add("MCV", "Fl", "60-77", "40-55");

@@ -521,6 +521,23 @@ public class MainViewModel : ObservableObject
             if (File.Exists(logoPath))
                 logoBytes = File.ReadAllBytes(logoPath);
 
+            HemogramaData? hemoData = null;
+            if (IsHemogramaLoaded && _hemogramas.TryGetValue(ConfirmedPedido!, out var hvm))
+            {
+                var rows = hvm.Items
+                    .Where(i => i.ValorRelativo.HasValue || i.ValorAbsoluto.HasValue)
+                    .Select(i => new HemogramaRow(
+                        i.Determinacion,
+                        i.ValorRelativo,
+                        i.ValorAbsoluto,
+                        i.Unidades,
+                        i.RefCaninos,
+                        i.RefFelinos))
+                    .ToList();
+                if (rows.Count > 0)
+                    hemoData = new HemogramaData(rows, hvm.Observaciones, HeaderLinea2); // HeaderLinea2 contiene especie entre otros datos
+            }
+
             var pdfBytes = _pdfService.GenerateInformePdfBytes(logoBytes, new InformeHeaderData(
                 HeaderFecha,
                 HeaderPaciente,
@@ -528,7 +545,7 @@ public class MainViewModel : ObservableObject
                 HeaderPropietario,
                 HeaderVeterinario,
                 HeaderSucursal,
-                Bioquimico ?? string.Empty));
+                Bioquimico ?? string.Empty), hemoData);
             var preview = new UclePdf.Views.PreviewPdfWindow(pdfBytes) { Owner = Application.Current?.MainWindow };
             preview.ShowDialog();
         }
