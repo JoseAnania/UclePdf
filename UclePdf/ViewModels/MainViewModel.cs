@@ -86,6 +86,7 @@ public class MainViewModel : ObservableObject
                 OnPropertyChanged(nameof(IsVifVilefLoaded));
                 OnPropertyChanged(nameof(IsIonogramaLoaded));
                 OnPropertyChanged(nameof(IsCitologicoLoaded));
+                OnPropertyChanged(nameof(IsLiquidoPuncionLoaded));
             }
         }
     }
@@ -120,6 +121,7 @@ public class MainViewModel : ObservableObject
     private readonly Dictionary<Pedido, VifVilefViewModel> _vifvilef = new();
     private readonly Dictionary<Pedido, IonogramaViewModel> _ionograma = new();
     private readonly Dictionary<Pedido, CitologicoViewModel> _citologico = new();
+    private readonly Dictionary<Pedido, LiquidoPuncionViewModel> _liquidoPuncion = new();
     public bool IsHemogramaLoaded => ConfirmedPedido != null && _hemogramas.TryGetValue(ConfirmedPedido, out var hvm) && hvm.IsConfirmed && hvm.Items.Any(i => i.ValorRelativo.HasValue);
     public bool IsQuimicaLoaded => ConfirmedPedido != null && _quimicas.TryGetValue(ConfirmedPedido, out var qvm) && qvm.IsConfirmed && qvm.Items.Any(i => i.Valor.HasValue);
     public bool IsOrinaLoaded => ConfirmedPedido != null && _orinas.TryGetValue(ConfirmedPedido, out var ovm) && ovm.IsConfirmed && ovm.Items.Any(i => !string.IsNullOrWhiteSpace(i.Valor));
@@ -133,6 +135,7 @@ public class MainViewModel : ObservableObject
     public bool IsVifVilefLoaded => ConfirmedPedido != null && _vifvilef.TryGetValue(ConfirmedPedido, out var vv) && vv.IsConfirmed && ((vv.VifResultado != null && vv.VifResultado != "Sin seleccion") || (vv.VilefResultado != null && vv.VilefResultado != "Sin seleccion"));
     public bool IsIonogramaLoaded => ConfirmedPedido != null && _ionograma.TryGetValue(ConfirmedPedido, out var io) && io.IsConfirmed && io.Items.Any(i => i.Valor.HasValue);
     public bool IsCitologicoLoaded => ConfirmedPedido != null && _citologico.TryGetValue(ConfirmedPedido, out var ci) && ci.IsConfirmed && ci.Items.Any(i => !string.IsNullOrWhiteSpace(i.Resultado));
+    public bool IsLiquidoPuncionLoaded => ConfirmedPedido != null && _liquidoPuncion.TryGetValue(ConfirmedPedido, out var lp) && lp.IsConfirmed && lp.Items.Any(i => !string.IsNullOrWhiteSpace(i.Resultado));
 
     public IReadOnlyList<string> SucursalesOpciones { get; } = new[]
     {
@@ -218,6 +221,7 @@ public class MainViewModel : ObservableObject
     public ICommand OpenVifVilefCommand => new RelayCommand(_ => OpenVifVilef(), _ => IsInformeEnabled && ConfirmedPedido != null);
     public ICommand OpenIonogramaCommand => new RelayCommand(_ => OpenIonograma(), _ => IsInformeEnabled && ConfirmedPedido != null);
     public ICommand OpenCitologicoCommand => new RelayCommand(_ => OpenCitologico(), _ => IsInformeEnabled && ConfirmedPedido != null);
+    public ICommand OpenLiquidoPuncionCommand => new RelayCommand(_ => OpenLiquidoPuncion(), _ => IsInformeEnabled && ConfirmedPedido != null);
 
     private static string? BrowseExcel()
     {
@@ -489,6 +493,22 @@ public class MainViewModel : ObservableObject
         OnPropertyChanged(nameof(IsCitologicoLoaded));
     }
 
+    private void OpenLiquidoPuncion()
+    {
+        if (ConfirmedPedido is null) return;
+        if (!_liquidoPuncion.TryGetValue(ConfirmedPedido, out var vm))
+        {
+            vm = new LiquidoPuncionViewModel();
+        }
+        var win = new LiquidoPuncionWindow(vm) { Owner = Application.Current?.MainWindow };
+        var result = win.ShowDialog();
+        if (result == true)
+        {
+            _liquidoPuncion[ConfirmedPedido] = vm;
+        }
+        OnPropertyChanged(nameof(IsLiquidoPuncionLoaded));
+    }
+
     private void ClearAll()
     {
         var res = MessageBox.Show("¿Está seguro de limpiar todo? Esta acción no se puede deshacer.", "Confirmar", MessageBoxButton.YesNo, MessageBoxImage.Question);
@@ -509,6 +529,7 @@ public class MainViewModel : ObservableObject
         _vifvilef.Clear();
         _ionograma.Clear();
         _citologico.Clear();
+        _liquidoPuncion.Clear();
         SelectedPedido = null;
         ConfirmedPedido = null;
         IsInformeEnabled = false;

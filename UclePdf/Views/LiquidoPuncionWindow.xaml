@@ -1,0 +1,107 @@
+<Window x:Class="UclePdf.Views.LiquidoPuncionWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="clr-namespace:UclePdf.ViewModels"
+        xmlns:conv="clr-namespace:UclePdf.Converters"
+        Title="Liquido de puncion" Height="760" Width="820">
+    <Window.Resources>
+        <conv:StringToDoubleInvariantConverter x:Key="StringToDouble"/>
+        <Style x:Key="PrimaryButton" TargetType="Button">
+            <Setter Property="Padding" Value="20,10"/>
+            <Setter Property="Margin" Value="0,0,8,0"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Background" Value="#FF1976D2"/>
+            <Setter Property="Foreground" Value="White"/>
+        </Style>
+        <Style x:Key="DangerButton" TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
+            <Setter Property="Background" Value="#FFD32F2F"/>
+        </Style>
+        <Style x:Key="RightAlignedTextBox" TargetType="TextBox">
+            <Setter Property="HorizontalContentAlignment" Value="Right"/>
+            <Setter Property="Width" Value="80"/>
+            <Setter Property="Margin" Value="6 0 0 2"/>
+            <Setter Property="Padding" Value="2"/>
+            <Setter Property="FontSize" Value="12"/>
+        </Style>
+        <Style TargetType="Label">
+            <Setter Property="Margin" Value="0 0 0 2"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="FontSize" Value="12"/>
+        </Style>
+    </Window.Resources>
+    <Window.DataContext>
+        <vm:LiquidoPuncionViewModel/>
+    </Window.DataContext>
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <DataGrid Grid.Row="0" ItemsSource="{Binding Items}" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Determinacion" Binding="{Binding Determinacion}" IsReadOnly="True" Width="260"/>
+                <DataGridTextColumn Header="Resultado" Binding="{Binding Resultado, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="*"/>
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <!-- Bloque Bioquimica -->
+        <Border Grid.Row="1" BorderBrush="Gray" BorderThickness="1" Padding="10" Margin="0,10,0,0" CornerRadius="4">
+            <StackPanel>
+                <TextBlock Text="Bioquimica en liquido de puncion" FontWeight="Bold" Margin="0,0,0,6"/>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <Label Grid.Row="0" Grid.Column="0" Content="Urea"/>
+                    <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding Urea, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource StringToDouble}}" Style="{StaticResource RightAlignedTextBox}"/>
+
+                    <Label Grid.Row="1" Grid.Column="0" Content="Creatinina"/>
+                    <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding Creatinina, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource StringToDouble}}" Style="{StaticResource RightAlignedTextBox}"/>
+
+                    <Label Grid.Row="2" Grid.Column="0" Content="FAL"/>
+                    <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding FAL, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource StringToDouble}}" Style="{StaticResource RightAlignedTextBox}"/>
+
+                    <Label Grid.Row="3" Grid.Column="0" Content="Colesterol total"/>
+                    <TextBox Grid.Row="3" Grid.Column="1" Text="{Binding ColesterolTotal, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource StringToDouble}}" Style="{StaticResource RightAlignedTextBox}"/>
+
+                    <Label Grid.Row="4" Grid.Column="0" Content="Trigliceridos"/>
+                    <TextBox Grid.Row="4" Grid.Column="1" Text="{Binding Trigliceridos, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource StringToDouble}}" Style="{StaticResource RightAlignedTextBox}"/>
+
+                    <Label Grid.Row="5" Grid.Column="0" Content="Bilirrubina Total"/>
+                    <TextBox Grid.Row="5" Grid.Column="1" Text="{Binding BilirrubinaTotal, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource StringToDouble}}" Style="{StaticResource RightAlignedTextBox}"/>
+
+                    <Label Grid.Row="6" Grid.Column="0" Content="Bilirrubina Directa"/>
+                    <TextBox Grid.Row="6" Grid.Column="1" Text="{Binding BilirrubinaDirecta, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource StringToDouble}}" Style="{StaticResource RightAlignedTextBox}"/>
+
+                    <Label Grid.Row="7" Grid.Column="0" Content="Bilirrubina Indirecta"/>
+                    <TextBox Grid.Row="7" Grid.Column="1" Text="{Binding BilirrubinaIndirecta, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource StringToDouble}}" Style="{StaticResource RightAlignedTextBox}"/>
+                </Grid>
+            </StackPanel>
+        </Border>
+
+        <StackPanel Grid.Row="2" Orientation="Vertical" Margin="0,10,0,0">
+            <TextBlock Text="Observaciones" FontWeight="Bold"/>
+            <TextBox Text="{Binding Observaciones, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" AcceptsReturn="True" Height="140" TextWrapping="Wrap"/>
+        </StackPanel>
+
+        <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,12,0,0">
+            <Button Content="Confirmar" Width="160" Height="36" Click="OnConfirmClick" Style="{StaticResource PrimaryButton}"/>
+            <Button Content="Limpiar" Width="140" Height="36" Click="OnClearClick" Style="{StaticResource DangerButton}"/>
+        </StackPanel>
+    </Grid>
+</Window>
