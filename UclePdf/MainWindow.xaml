@@ -358,7 +358,7 @@
 
                     <!-- Botón inferior fijo -->
                     <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,8,0,0">
-                        <Button Content="Generar informe" Width="220" Height="48" Style="{StaticResource PrimaryButton}"/>
+                        <Button Content="Generar informe" Width="220" Height="48" Style="{StaticResource PrimaryButton}" Command="{Binding GenerateInformeCommand}"/>
                     </StackPanel>
                 </Grid>
             </TabItem>

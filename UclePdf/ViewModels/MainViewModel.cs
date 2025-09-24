@@ -2,16 +2,19 @@ using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Input;
 using Microsoft.Win32;
+using System.IO;
 using UclePdf.Core;
 using UclePdf.Core.Models;
 using UclePdf.Core.Services;
 using UclePdf.Views;
+using UclePdf.Services;
 
 namespace UclePdf.ViewModels;
 
 public class MainViewModel : ObservableObject
 {
     private readonly IPedidosReader _pedidosReader;
+    private readonly IPdfReportService _pdfService = new PdfReportService();
 
     private const string NoneOption = "Sin selección";
     private const string DefaultBioquimico = "Rodríguez Méndez Rocío MP 6275";
@@ -221,6 +224,7 @@ public class MainViewModel : ObservableObject
     public ICommand OpenIonogramaCommand => new RelayCommand(_ => OpenIonograma(), _ => IsInformeEnabled && ConfirmedPedido != null);
     public ICommand OpenCitologicoCommand => new RelayCommand(_ => OpenCitologico(), _ => IsInformeEnabled && ConfirmedPedido != null);
     public ICommand OpenLiquidoPuncionCommand => new RelayCommand(_ => OpenLiquidoPuncion(), _ => IsInformeEnabled && ConfirmedPedido != null);
+    public ICommand GenerateInformeCommand => new RelayCommand(_ => GenerateInforme(), _ => IsInformeEnabled && ConfirmedPedido != null && !IsBusy);
 
     private static string? BrowseExcel()
     {
@@ -506,6 +510,25 @@ public class MainViewModel : ObservableObject
             _liquidoPuncion[ConfirmedPedido] = vm;
         }
         OnPropertyChanged(nameof(IsLiquidoPuncionLoaded));
+    }
+
+    private void GenerateInforme()
+    {
+        try
+        {
+            byte[]? logoBytes = null;
+            var logoPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "logo_ucle.png");
+            if (File.Exists(logoPath))
+                logoBytes = File.ReadAllBytes(logoPath);
+
+            var pdfBytes = _pdfService.GenerateBasicHeaderPdfBytes(logoBytes);
+            var preview = new UclePdf.Views.PreviewPdfWindow(pdfBytes) { Owner = Application.Current?.MainWindow };
+            preview.ShowDialog();
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Error generando PDF: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
     }
 
     private void ClearAll()
