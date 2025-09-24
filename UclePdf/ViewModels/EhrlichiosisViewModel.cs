@@ -30,6 +30,7 @@ public class EhrlichiosisViewModel : INotifyPropertyChanged
 
     public ObservableCollection<string> ResultadosPosibles { get; } = new()
     {
+        "Sin seleccion",
         "Positivo (+)",
         "Negativo (-)"
     };
@@ -43,18 +44,20 @@ public class EhrlichiosisViewModel : INotifyPropertyChanged
 
     public EhrlichiosisViewModel()
     {
-        Items.Add(new EhrlichiosisItem("Inmunocromatografia (IC)"));
-        Items.Add(new EhrlichiosisItem("Speed Ehrlichia"));
+        // Dos lineas dentro de una sola celda
+        Items.Add(new EhrlichiosisItem("Inmunocromatografia (IC)\nSpeed Ehrlichia"));
+        Items[0].Resultado = "Sin seleccion";
     }
 
     public void Confirm()
     {
-        IsConfirmed = Items.Any(i => !string.IsNullOrWhiteSpace(i.Resultado));
+        var it = Items.First();
+        IsConfirmed = !string.IsNullOrWhiteSpace(it.Resultado) && it.Resultado != "Sin seleccion";
     }
 
     public void Clear()
     {
-        foreach (var it in Items) it.Resultado = null;
+        foreach (var it in Items) it.Resultado = "Sin seleccion";
         IsConfirmed = false;
     }
 
