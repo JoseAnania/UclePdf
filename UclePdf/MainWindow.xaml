@@ -174,21 +174,24 @@
                                             <RowDefinition Height="Auto"/>
                                             <RowDefinition Height="Auto"/>
                                             <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
                                         </Grid.RowDefinitions>
                                         <!-- Etiquetas -->
-                                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Paciente:"  FontWeight="Bold"/>
-                                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Edad / Especie / Raza / Sexo:"  FontWeight="Bold" TextWrapping="Wrap"/>
-                                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Propietario:" FontWeight="Bold"/>
-                                        <TextBlock Grid.Row="3" Grid.Column="0" Text="Veterinario solicitante:" FontWeight="Bold" TextWrapping="Wrap"/>
-                                        <TextBlock Grid.Row="4" Grid.Column="0" Text="UCLE (sucursal):" FontWeight="Bold"/>
-                                        <TextBlock Grid.Row="5" Grid.Column="0" Text="Bioquímico:" FontWeight="Bold"/>
+                                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Fecha:" FontWeight="Bold"/>
+                                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Paciente:"  FontWeight="Bold"/>
+                                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Edad / Especie / Raza / Sexo:"  FontWeight="Bold" TextWrapping="Wrap"/>
+                                        <TextBlock Grid.Row="3" Grid.Column="0" Text="Propietario:" FontWeight="Bold"/>
+                                        <TextBlock Grid.Row="4" Grid.Column="0" Text="Veterinario solicitante:" FontWeight="Bold" TextWrapping="Wrap"/>
+                                        <TextBlock Grid.Row="5" Grid.Column="0" Text="UCLE (sucursal):" FontWeight="Bold"/>
+                                        <TextBlock Grid.Row="6" Grid.Column="0" Text="Bioquímico:" FontWeight="Bold"/>
                                         <!-- Valores -->
-                                        <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding HeaderPaciente}"/>
-                                        <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding HeaderLinea2}"/>
-                                        <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding HeaderPropietario}"/>
-                                        <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding HeaderVeterinario}"/>
-                                        <TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding HeaderSucursal}"/>
-                                        <TextBlock Grid.Row="5" Grid.Column="1" Text="{Binding Bioquimico}"/>
+                                        <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding HeaderFecha}"/>
+                                        <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding HeaderPaciente}"/>
+                                        <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding HeaderLinea2}"/>
+                                        <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding HeaderPropietario}"/>
+                                        <TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding HeaderVeterinario}"/>
+                                        <TextBlock Grid.Row="5" Grid.Column="1" Text="{Binding HeaderSucursal}"/>
+                                        <TextBlock Grid.Row="6" Grid.Column="1" Text="{Binding Bioquimico}"/>
                                     </Grid>
                                 </DockPanel>
                             </Border>

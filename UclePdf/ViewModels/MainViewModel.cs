@@ -84,6 +84,7 @@ public class MainViewModel : ObservableObject
                 OnPropertyChanged(nameof(IsIonogramaLoaded));
                 OnPropertyChanged(nameof(IsCitologicoLoaded));
                 OnPropertyChanged(nameof(IsLiquidoPuncionLoaded));
+                OnPropertyChanged(nameof(HeaderFecha));
             }
         }
     }
@@ -101,6 +102,7 @@ public class MainViewModel : ObservableObject
     public string HeaderPropietario => ConfirmedPedido?.Propietario ?? string.Empty;
     public string HeaderVeterinario => ConfirmedPedido?.VeterinarioSolicitante ?? string.Empty;
     public string HeaderSucursal => ConfirmedPedido?.Sucursal ?? string.Empty;
+    public string HeaderFecha => ConfirmedPedido?.MarcaTemporal?.ToString("dd/MM/yyyy") ?? string.Empty;
 
     private string? _pathA;
     public string? PathA { get => _pathA; set => SetProperty(ref _pathA, value); }
