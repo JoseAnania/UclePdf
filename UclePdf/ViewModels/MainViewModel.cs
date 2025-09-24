@@ -521,7 +521,14 @@ public class MainViewModel : ObservableObject
             if (File.Exists(logoPath))
                 logoBytes = File.ReadAllBytes(logoPath);
 
-            var pdfBytes = _pdfService.GenerateBasicHeaderPdfBytes(logoBytes);
+            var pdfBytes = _pdfService.GenerateInformePdfBytes(logoBytes, new InformeHeaderData(
+                HeaderFecha,
+                HeaderPaciente,
+                HeaderLinea2,
+                HeaderPropietario,
+                HeaderVeterinario,
+                HeaderSucursal,
+                Bioquimico ?? string.Empty));
             var preview = new UclePdf.Views.PreviewPdfWindow(pdfBytes) { Owner = Application.Current?.MainWindow };
             preview.ShowDialog();
         }
