@@ -83,6 +83,7 @@ public class MainViewModel : ObservableObject
                 OnPropertyChanged(nameof(IsRaspajeLoaded));
                 OnPropertyChanged(nameof(IsReticulocitosLoaded));
                 OnPropertyChanged(nameof(IsProteinuriaLoaded));
+                OnPropertyChanged(nameof(IsVifVilefLoaded));
             }
         }
     }
@@ -111,9 +112,10 @@ public class MainViewModel : ObservableObject
     private readonly Dictionary<Pedido, FrotisViewModel> _frotis = new();
     private readonly Dictionary<Pedido, CoproparasitologicoViewModel> _copro = new();
     private readonly Dictionary<Pedido, EhrlichiosisViewModel> _ehrlichiosis = new();
-    private readonly Dictionary< Pedido, RaspajePielViewModel> _raspajes = new();
+    private readonly Dictionary<Pedido, RaspajePielViewModel> _raspajes = new();
     private readonly Dictionary<Pedido, ReticulocitosViewModel> _reticulocitos = new();
     private readonly Dictionary<Pedido, ProteinuriaCreatininuriaViewModel> _proteinuria = new();
+    private readonly Dictionary<Pedido, VifVilefViewModel> _vifvilef = new();
     public bool IsHemogramaLoaded => ConfirmedPedido != null && _hemogramas.TryGetValue(ConfirmedPedido, out var hvm) && hvm.IsConfirmed && hvm.Items.Any(i => i.ValorRelativo.HasValue);
     public bool IsQuimicaLoaded => ConfirmedPedido != null && _quimicas.TryGetValue(ConfirmedPedido, out var qvm) && qvm.IsConfirmed && qvm.Items.Any(i => i.Valor.HasValue);
     public bool IsOrinaLoaded => ConfirmedPedido != null && _orinas.TryGetValue(ConfirmedPedido, out var ovm) && ovm.IsConfirmed && ovm.Items.Any(i => !string.IsNullOrWhiteSpace(i.Valor));
@@ -124,6 +126,7 @@ public class MainViewModel : ObservableObject
     public bool IsRaspajeLoaded => ConfirmedPedido != null && _raspajes.TryGetValue(ConfirmedPedido, out var rp) && rp.IsConfirmed && rp.Items.Any(i => !string.IsNullOrWhiteSpace(i.Resultado));
     public bool IsReticulocitosLoaded => ConfirmedPedido != null && _reticulocitos.TryGetValue(ConfirmedPedido, out var rt) && rt.IsConfirmed && rt.Items.Any(i => i.Valor.HasValue);
     public bool IsProteinuriaLoaded => ConfirmedPedido != null && _proteinuria.TryGetValue(ConfirmedPedido, out var pr) && pr.IsConfirmed && pr.Items.Any(i => i.Valor.HasValue);
+    public bool IsVifVilefLoaded => ConfirmedPedido != null && _vifvilef.TryGetValue(ConfirmedPedido, out var vv) && vv.IsConfirmed && ((vv.VifResultado != null && vv.VifResultado != "Sin seleccion") || (vv.VilefResultado != null && vv.VilefResultado != "Sin seleccion"));
 
     public IReadOnlyList<string> SucursalesOpciones { get; } = new[]
     {
@@ -206,6 +209,7 @@ public class MainViewModel : ObservableObject
     public ICommand OpenRaspajeCommand => new RelayCommand(_ => OpenRaspaje(), _ => IsInformeEnabled && ConfirmedPedido != null);
     public ICommand OpenReticulocitosCommand => new RelayCommand(_ => OpenReticulocitos(), _ => IsInformeEnabled && ConfirmedPedido != null);
     public ICommand OpenProteinuriaCommand => new RelayCommand(_ => OpenProteinuria(), _ => IsInformeEnabled && ConfirmedPedido != null);
+    public ICommand OpenVifVilefCommand => new RelayCommand(_ => OpenVifVilef(), _ => IsInformeEnabled && ConfirmedPedido != null);
 
     private static string? BrowseExcel()
     {
@@ -429,6 +433,22 @@ public class MainViewModel : ObservableObject
         OnPropertyChanged(nameof(IsProteinuriaLoaded));
     }
 
+    private void OpenVifVilef()
+    {
+        if (ConfirmedPedido is null) return;
+        if (!_vifvilef.TryGetValue(ConfirmedPedido, out var vm))
+        {
+            vm = new VifVilefViewModel();
+        }
+        var win = new VifVilefWindow(vm) { Owner = Application.Current?.MainWindow };
+        var result = win.ShowDialog();
+        if (result == true)
+        {
+            _vifvilef[ConfirmedPedido] = vm;
+        }
+        OnPropertyChanged(nameof(IsVifVilefLoaded));
+    }
+
     private void ClearAll()
     {
         var res = MessageBox.Show("¿Está seguro de limpiar todo? Esta acción no se puede deshacer.", "Confirmar", MessageBoxButton.YesNo, MessageBoxImage.Question);
@@ -446,6 +466,7 @@ public class MainViewModel : ObservableObject
         _raspajes.Clear();
         _reticulocitos.Clear();
         _proteinuria.Clear();
+        _vifvilef.Clear();
         SelectedPedido = null;
         ConfirmedPedido = null;
         IsInformeEnabled = false;
