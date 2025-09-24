@@ -1,11 +1,8 @@
 using System.Collections.ObjectModel;
-using System.Linq;
 using System.Windows;
 using System.Windows.Input;
-using System.Windows.Data;
-using System.Threading.Tasks;
 using Microsoft.Win32;
-using UclePdf.Core; // RelayCommand
+using UclePdf.Core;
 using UclePdf.Core.Models;
 using UclePdf.Core.Services;
 using UclePdf.Views;
@@ -135,7 +132,7 @@ public class MainViewModel : ObservableObject
     public bool IsVifVilefLoaded => ConfirmedPedido != null && _vifvilef.TryGetValue(ConfirmedPedido, out var vv) && vv.IsConfirmed && ((vv.VifResultado != null && vv.VifResultado != "Sin seleccion") || (vv.VilefResultado != null && vv.VilefResultado != "Sin seleccion"));
     public bool IsIonogramaLoaded => ConfirmedPedido != null && _ionograma.TryGetValue(ConfirmedPedido, out var io) && io.IsConfirmed && io.Items.Any(i => i.Valor.HasValue);
     public bool IsCitologicoLoaded => ConfirmedPedido != null && _citologico.TryGetValue(ConfirmedPedido, out var ci) && ci.IsConfirmed && ci.Items.Any(i => !string.IsNullOrWhiteSpace(i.Resultado));
-    public bool IsLiquidoPuncionLoaded => ConfirmedPedido != null && _liquidoPuncion.TryGetValue(ConfirmedPedido, out var lp) && lp.IsConfirmed && lp.Items.Any(i => !string.IsNullOrWhiteSpace(i.Resultado));
+    public bool IsLiquidoPuncionLoaded => ConfirmedPedido != null && _liquidoPuncion.TryGetValue(ConfirmedPedido, out var lp) && lp.IsConfirmed;
 
     public IReadOnlyList<string> SucursalesOpciones { get; } = new[]
     {

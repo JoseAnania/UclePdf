@@ -33,6 +33,25 @@
             <Setter Property="VerticalAlignment" Value="Center"/>
             <Setter Property="MinWidth" Value="140"/>
         </Style>
+        <!-- Estilo base para botones de informes uniformes -->
+        <Style x:Key="ReportButtonBase" TargetType="Button">
+            <Setter Property="Width" Value="170"/>
+            <Setter Property="Height" Value="100"/>
+            <Setter Property="Margin" Value="8"/>
+            <Setter Property="Padding" Value="8"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Background" Value="#D32F2F"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="ContentTemplate">
+                <Setter.Value>
+                    <DataTemplate>
+                        <TextBlock TextWrapping="Wrap" TextAlignment="Center" FontSize="13" FontWeight="Bold" Text="{Binding RelativeSource={RelativeSource AncestorType=Button}, Path=Content}"/>
+                    </DataTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </Window.Resources>
     <Window.DataContext>
         <vm:MainViewModel />
@@ -156,22 +175,19 @@
                             <TextBlock Text="UCLE (sucursal): " FontWeight="Bold"/>
                             <TextBlock Text="{Binding HeaderSucursal}"/>
                         </StackPanel>
-                        <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,20">
                             <TextBlock Text="Bioquímico: " FontWeight="Bold"/>
                             <TextBlock Text="{Binding Bioquimico}"/>
                         </StackPanel>
 
-                        <!-- Botones de informes -->
-                        <WrapPanel>
+                        <!-- Botones de informes en grilla uniforme -->
+                        <UniformGrid Columns="5" Rows="0" Margin="0,0,0,10">
                             <Button Content="Hemograma" Command="{Binding OpenHemogramaCommand}">
                                 <Button.Style>
-                                    <Style TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
+                                    <Style TargetType="Button" BasedOn="{StaticResource ReportButtonBase}">
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding IsHemogramaLoaded}" Value="True">
                                                 <Setter Property="Background" Value="#2E7D32"/>
-                                            </DataTrigger>
-                                            <DataTrigger Binding="{Binding IsHemogramaLoaded}" Value="False">
-                                                <Setter Property="Background" Value="#D32F2F"/>
                                             </DataTrigger>
                                         </Style.Triggers>
                                     </Style>
@@ -179,13 +195,10 @@
                             </Button>
                             <Button Content="Química sanguínea" Command="{Binding OpenQuimicaCommand}">
                                 <Button.Style>
-                                    <Style TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
+                                    <Style TargetType="Button" BasedOn="{StaticResource ReportButtonBase}">
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding IsQuimicaLoaded}" Value="True">
                                                 <Setter Property="Background" Value="#2E7D32"/>
-                                            </DataTrigger>
-                                            <DataTrigger Binding="{Binding IsQuimicaLoaded}" Value="False">
-                                                <Setter Property="Background" Value="#D32F2F"/>
                                             </DataTrigger>
                                         </Style.Triggers>
                                     </Style>
@@ -193,13 +206,10 @@
                             </Button>
                             <Button Content="Orina completa" Command="{Binding OpenOrinaCommand}">
                                 <Button.Style>
-                                    <Style TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
+                                    <Style TargetType="Button" BasedOn="{StaticResource ReportButtonBase}">
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding IsOrinaLoaded}" Value="True">
                                                 <Setter Property="Background" Value="#2E7D32"/>
-                                            </DataTrigger>
-                                            <DataTrigger Binding="{Binding IsOrinaLoaded}" Value="False">
-                                                <Setter Property="Background" Value="#D32F2F"/>
                                             </DataTrigger>
                                         </Style.Triggers>
                                     </Style>
@@ -207,13 +217,10 @@
                             </Button>
                             <Button Content="Hemostasia" Command="{Binding OpenHemostasiaCommand}">
                                 <Button.Style>
-                                    <Style TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
+                                    <Style TargetType="Button" BasedOn="{StaticResource ReportButtonBase}">
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding IsHemostasiaLoaded}" Value="True">
                                                 <Setter Property="Background" Value="#2E7D32"/>
-                                            </DataTrigger>
-                                            <DataTrigger Binding="{Binding IsHemostasiaLoaded}" Value="False">
-                                                <Setter Property="Background" Value="#D32F2F"/>
                                             </DataTrigger>
                                         </Style.Triggers>
                                     </Style>
@@ -221,27 +228,21 @@
                             </Button>
                             <Button Content="Frotis" Command="{Binding OpenFrotisCommand}">
                                 <Button.Style>
-                                    <Style TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
+                                    <Style TargetType="Button" BasedOn="{StaticResource ReportButtonBase}">
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding IsFrotisLoaded}" Value="True">
                                                 <Setter Property="Background" Value="#2E7D32"/>
-                                            </DataTrigger>
-                                            <DataTrigger Binding="{Binding IsFrotisLoaded}" Value="False">
-                                                <Setter Property="Background" Value="#D32F2F"/>
                                             </DataTrigger>
                                         </Style.Triggers>
                                     </Style>
                                 </Button.Style>
                             </Button>
-                            <Button Content="Coproparasitologico" Command="{Binding OpenCoproCommand}">
+                            <Button Content="Coproparasitológico" Command="{Binding OpenCoproCommand}">
                                 <Button.Style>
-                                    <Style TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
+                                    <Style TargetType="Button" BasedOn="{StaticResource ReportButtonBase}">
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding IsCoproLoaded}" Value="True">
                                                 <Setter Property="Background" Value="#2E7D32"/>
-                                            </DataTrigger>
-                                            <DataTrigger Binding="{Binding IsCoproLoaded}" Value="False">
-                                                <Setter Property="Background" Value="#D32F2F"/>
                                             </DataTrigger>
                                         </Style.Triggers>
                                     </Style>
@@ -249,13 +250,10 @@
                             </Button>
                             <Button Content="Ehrlichiosis canina (IC)" Command="{Binding OpenEhrlichiosisCommand}">
                                 <Button.Style>
-                                    <Style TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
+                                    <Style TargetType="Button" BasedOn="{StaticResource ReportButtonBase}">
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding IsEhrlichiosisLoaded}" Value="True">
                                                 <Setter Property="Background" Value="#2E7D32"/>
-                                            </DataTrigger>
-                                            <DataTrigger Binding="{Binding IsEhrlichiosisLoaded}" Value="False">
-                                                <Setter Property="Background" Value="#D32F2F"/>
                                             </DataTrigger>
                                         </Style.Triggers>
                                     </Style>
@@ -263,13 +261,10 @@
                             </Button>
                             <Button Content="Raspaje de piel" Command="{Binding OpenRaspajeCommand}">
                                 <Button.Style>
-                                    <Style TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
+                                    <Style TargetType="Button" BasedOn="{StaticResource ReportButtonBase}">
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding IsRaspajeLoaded}" Value="True">
                                                 <Setter Property="Background" Value="#2E7D32"/>
-                                            </DataTrigger>
-                                            <DataTrigger Binding="{Binding IsRaspajeLoaded}" Value="False">
-                                                <Setter Property="Background" Value="#D32F2F"/>
                                             </DataTrigger>
                                         </Style.Triggers>
                                     </Style>
@@ -277,27 +272,21 @@
                             </Button>
                             <Button Content="Recuento de reticulocitos" Command="{Binding OpenReticulocitosCommand}">
                                 <Button.Style>
-                                    <Style TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
+                                    <Style TargetType="Button" BasedOn="{StaticResource ReportButtonBase}">
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding IsReticulocitosLoaded}" Value="True">
                                                 <Setter Property="Background" Value="#2E7D32"/>
-                                            </DataTrigger>
-                                            <DataTrigger Binding="{Binding IsReticulocitosLoaded}" Value="False">
-                                                <Setter Property="Background" Value="#D32F2F"/>
                                             </DataTrigger>
                                         </Style.Triggers>
                                     </Style>
                                 </Button.Style>
                             </Button>
-                            <Button Content="Relacion proteinuria/creatininuria" Command="{Binding OpenProteinuriaCommand}">
+                            <Button Content="Relación proteinuria/creatininuria" Command="{Binding OpenProteinuriaCommand}">
                                 <Button.Style>
-                                    <Style TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
+                                    <Style TargetType="Button" BasedOn="{StaticResource ReportButtonBase}">
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding IsProteinuriaLoaded}" Value="True">
                                                 <Setter Property="Background" Value="#2E7D32"/>
-                                            </DataTrigger>
-                                            <DataTrigger Binding="{Binding IsProteinuriaLoaded}" Value="False">
-                                                <Setter Property="Background" Value="#D32F2F"/>
                                             </DataTrigger>
                                         </Style.Triggers>
                                     </Style>
@@ -305,13 +294,10 @@
                             </Button>
                             <Button Content="VIF/VILeF (IC)" Command="{Binding OpenVifVilefCommand}">
                                 <Button.Style>
-                                    <Style TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
+                                    <Style TargetType="Button" BasedOn="{StaticResource ReportButtonBase}">
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding IsVifVilefLoaded}" Value="True">
                                                 <Setter Property="Background" Value="#2E7D32"/>
-                                            </DataTrigger>
-                                            <DataTrigger Binding="{Binding IsVifVilefLoaded}" Value="False">
-                                                <Setter Property="Background" Value="#D32F2F"/>
                                             </DataTrigger>
                                         </Style.Triggers>
                                     </Style>
@@ -319,53 +305,44 @@
                             </Button>
                             <Button Content="Ionograma" Command="{Binding OpenIonogramaCommand}">
                                 <Button.Style>
-                                    <Style TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
+                                    <Style TargetType="Button" BasedOn="{StaticResource ReportButtonBase}">
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding IsIonogramaLoaded}" Value="True">
                                                 <Setter Property="Background" Value="#2E7D32"/>
                                             </DataTrigger>
-                                            <DataTrigger Binding="{Binding IsIonogramaLoaded}" Value="False">
-                                                <Setter Property="Background" Value="#D32F2F"/>
-                                            </DataTrigger>
                                         </Style.Triggers>
                                     </Style>
                                 </Button.Style>
                             </Button>
-                            <Button Content="Estudio citologico" Command="{Binding OpenCitologicoCommand}">
+                            <Button Content="Estudio citológico" Command="{Binding OpenCitologicoCommand}">
                                 <Button.Style>
-                                    <Style TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
+                                    <Style TargetType="Button" BasedOn="{StaticResource ReportButtonBase}">
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding IsCitologicoLoaded}" Value="True">
                                                 <Setter Property="Background" Value="#2E7D32"/>
                                             </DataTrigger>
-                                            <DataTrigger Binding="{Binding IsCitologicoLoaded}" Value="False">
-                                                <Setter Property="Background" Value="#D32F2F"/>
-                                            </DataTrigger>
                                         </Style.Triggers>
                                     </Style>
                                 </Button.Style>
                             </Button>
-                            <Button Content="Liquido de puncion" Command="{Binding OpenLiquidoPuncionCommand}">
+                            <Button Content="Líquido de punción" Command="{Binding OpenLiquidoPuncionCommand}">
                                 <Button.Style>
-                                    <Style TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
+                                    <Style TargetType="Button" BasedOn="{StaticResource ReportButtonBase}">
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding IsLiquidoPuncionLoaded}" Value="True">
                                                 <Setter Property="Background" Value="#2E7D32"/>
                                             </DataTrigger>
-                                            <DataTrigger Binding="{Binding IsLiquidoPuncionLoaded}" Value="False">
-                                                <Setter Property="Background" Value="#D32F2F"/>
-                                            </DataTrigger>
                                         </Style.Triggers>
                                     </Style>
                                 </Button.Style>
                             </Button>
-                        </WrapPanel>
+                        </UniformGrid>
                     </StackPanel>
                 </Grid>
             </TabItem>
         </TabControl>
 
-        <!-- Overlay de carga (siempre arriba) -->
+        <!-- Overlay de carga -->
         <Grid Background="#80000000" Visibility="{Binding IsBusy, Converter={StaticResource BoolToVisibilityConverter}}">
             <Border Background="White" Padding="20" CornerRadius="8" HorizontalAlignment="Center" VerticalAlignment="Center">
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
