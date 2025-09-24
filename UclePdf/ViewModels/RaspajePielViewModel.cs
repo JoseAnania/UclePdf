@@ -44,15 +44,17 @@ public class RaspajePielViewModel : INotifyPropertyChanged
     private bool _isConfirmed;
     public bool IsConfirmed { get => _isConfirmed; private set { if (value != _isConfirmed) { _isConfirmed = value; OnPropertyChanged(); } } }
 
+    private string? _observaciones;
+    public string? Observaciones { get => _observaciones; set { if (_observaciones != value) { _observaciones = value; OnPropertyChanged(); } } }
+
     public RaspajePielViewModel()
     {
-        Items.Add(new RaspajeItem("Determinación", "Raspaje de piel", editable: false));
-        Items.Add(new RaspajeItem("Observación microscópica", "No se observan ácaros ni hongos.", editable: true));
+        Items.Add(new RaspajeItem("Determinacion", "Raspaje de piel", editable: false));
+        Items.Add(new RaspajeItem("Observacion microscopica", "No se observan acaros ni hongos.", editable: true));
     }
 
     public void Confirm()
     {
-        // Solo depende de la fila editable (observación)
         var obs = Items.FirstOrDefault(i => i.IsEditable);
         IsConfirmed = !string.IsNullOrWhiteSpace(obs?.Resultado);
     }
@@ -60,6 +62,7 @@ public class RaspajePielViewModel : INotifyPropertyChanged
     public void Clear()
     {
         foreach (var it in Items) it.Clear();
+        Observaciones = null;
         IsConfirmed = false;
     }
 

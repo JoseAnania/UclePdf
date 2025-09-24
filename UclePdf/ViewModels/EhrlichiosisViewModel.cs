@@ -42,9 +42,15 @@ public class EhrlichiosisViewModel : INotifyPropertyChanged
         private set { if (_isConfirmed != value) { _isConfirmed = value; OnPropertyChanged(); } }
     }
 
+    private string? _observaciones;
+    public string? Observaciones
+    {
+        get => _observaciones;
+        set { if (_observaciones != value) { _observaciones = value; OnPropertyChanged(); } }
+    }
+
     public EhrlichiosisViewModel()
     {
-        // Dos lineas dentro de una sola celda
         Items.Add(new EhrlichiosisItem("Inmunocromatografia (IC)\nSpeed Ehrlichia"));
         Items[0].Resultado = "Sin seleccion";
     }
@@ -58,6 +64,7 @@ public class EhrlichiosisViewModel : INotifyPropertyChanged
     public void Clear()
     {
         foreach (var it in Items) it.Resultado = "Sin seleccion";
+        Observaciones = null;
         IsConfirmed = false;
     }
 

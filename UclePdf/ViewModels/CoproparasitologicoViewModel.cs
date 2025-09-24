@@ -47,6 +47,13 @@ public class CoproparasitologicoViewModel : INotifyPropertyChanged
         private set { if (value != _isConfirmed) { _isConfirmed = value; OnPropertyChanged(); } }
     }
 
+    private string? _observaciones;
+    public string? Observaciones
+    {
+        get => _observaciones;
+        set { if (_observaciones != value) { _observaciones = value; OnPropertyChanged(); } }
+    }
+
     public CoproparasitologicoViewModel()
     {
         // Valores precargados (capitalización normal)
@@ -60,6 +67,7 @@ public class CoproparasitologicoViewModel : INotifyPropertyChanged
     public void ClearResultados()
     {
         foreach (var it in Items) it.Clear();
+        Observaciones = null;
         IsConfirmed = false;
     }
 
