@@ -538,6 +538,20 @@ public class MainViewModel : ObservableObject
                     hemoData = new HemogramaData(rows, hvm.Observaciones, HeaderLinea2); // HeaderLinea2 contiene especie entre otros datos
             }
 
+            QuimicaData? quimicaData = null;
+            if (IsQuimicaLoaded && _quimicas.TryGetValue(ConfirmedPedido!, out var qvm))
+            {
+                var rowsQ = qvm.Items.Where(i => i.Valor.HasValue)
+                    .Select(i => new QuimicaRow(
+                        i.Determinacion,
+                        i.Valor,
+                        i.Unidades,
+                        i.RefCaninos,
+                        i.RefFelinos)).ToList();
+                if (rowsQ.Count > 0)
+                    quimicaData = new QuimicaData(rowsQ, qvm.Observaciones, HeaderLinea2);
+            }
+
             var pdfBytes = _pdfService.GenerateInformePdfBytes(logoBytes, new InformeHeaderData(
                 HeaderFecha,
                 HeaderPaciente,
@@ -545,7 +559,7 @@ public class MainViewModel : ObservableObject
                 HeaderPropietario,
                 HeaderVeterinario,
                 HeaderSucursal,
-                Bioquimico ?? string.Empty), hemoData);
+                Bioquimico ?? string.Empty), hemoData, quimicaData);
             var preview = new UclePdf.Views.PreviewPdfWindow(pdfBytes) { Owner = Application.Current?.MainWindow };
             preview.ShowDialog();
         }
