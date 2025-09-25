@@ -3,36 +3,77 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="clr-namespace:UclePdf.ViewModels"
         xmlns:conv="clr-namespace:UclePdf.Converters"
-        Title="Liquido de puncion" Height="760" Width="820">
+        Title="Liquido de puncion" Height="860" Width="980">
     <Window.Resources>
         <conv:StringToDoubleInvariantConverter x:Key="StringToDouble"/>
-        <Style x:Key="PrimaryButton" TargetType="Button">
-            <Setter Property="Padding" Value="20,10"/>
-            <Setter Property="Margin" Value="0,0,8,0"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Background" Value="#FF1976D2"/>
-            <Setter Property="Foreground" Value="White"/>
+        <SolidColorBrush x:Key="CardBg" Color="#FFFFFFFF"/>
+        <SolidColorBrush x:Key="CardBorder" Color="#E0E6EC"/>
+        <SolidColorBrush x:Key="CardBorderHover" Color="#B5C6D6"/>
+        <SolidColorBrush x:Key="InputBorder" Color="#B8C4CE"/>
+        <SolidColorBrush x:Key="InputBorderHover" Color="#7FA6C5"/>
+        <SolidColorBrush x:Key="InputBorderFocus" Color="#1565C0"/>
+        <SolidColorBrush x:Key="ErrorBorder" Color="#D32F2F"/>
+
+        <Style x:Key="LpCard" TargetType="Border">
+            <Setter Property="Background" Value="{StaticResource CardBg}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource CardBorder}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="12"/>
+            <Setter Property="Padding" Value="14"/>
+            <Setter Property="Margin" Value="8"/>
+            <Setter Property="Width" Value="280"/>
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect BlurRadius="6" ShadowDepth="0" Opacity="0.08"/>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="BorderBrush" Value="{StaticResource CardBorderHover}"/>
+                    <Setter Property="Effect">
+                        <Setter.Value>
+                            <DropShadowEffect BlurRadius="12" ShadowDepth="0" Opacity="0.18"/>
+                        </Setter.Value>
+                    </Setter>
+                </Trigger>
+            </Style.Triggers>
         </Style>
-        <Style x:Key="DangerButton" TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
-            <Setter Property="Background" Value="#FFD32F2F"/>
-        </Style>
-        <Style x:Key="RightAlignedTextBox" TargetType="TextBox">
+
+        <Style x:Key="NumericInput" TargetType="TextBox">
+            <Setter Property="Width" Value="110"/>
+            <Setter Property="Padding" Value="6,4"/>
             <Setter Property="HorizontalContentAlignment" Value="Right"/>
-            <Setter Property="Width" Value="80"/>
-            <Setter Property="Margin" Value="6 0 0 2"/>
-            <Setter Property="Padding" Value="2"/>
-            <Setter Property="FontSize" Value="12"/>
-        </Style>
-        <Style TargetType="Label">
-            <Setter Property="Margin" Value="0 0 0 2"/>
-            <Setter Property="VerticalAlignment" Value="Center"/>
-            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="BorderBrush" Value="{StaticResource InputBorder}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TextBox">
+                        <Border x:Name="Bd" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="4">
+                            <ScrollViewer x:Name="PART_ContentHost"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="BorderBrush" Value="{StaticResource InputBorderHover}"/>
+                            </Trigger>
+                            <Trigger Property="IsKeyboardFocused" Value="True">
+                                <Setter TargetName="Bd" Property="BorderBrush" Value="{StaticResource InputBorderFocus}"/>
+                                <Setter TargetName="Bd" Property="BorderThickness" Value="2"/>
+                            </Trigger>
+                            <Trigger Property="Validation.HasError" Value="True">
+                                <Setter TargetName="Bd" Property="BorderBrush" Value="{StaticResource ErrorBorder}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
         </Style>
     </Window.Resources>
     <Window.DataContext>
         <vm:LiquidoPuncionViewModel/>
     </Window.DataContext>
-    <Grid Margin="10">
+    <Grid Margin="12">
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
@@ -40,66 +81,88 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <DataGrid Grid.Row="0" ItemsSource="{Binding Items}" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False">
-            <DataGrid.Columns>
-                <DataGridTextColumn Header="Determinacion" Binding="{Binding Determinacion}" IsReadOnly="True" Width="260"/>
-                <DataGridTextColumn Header="Resultado" Binding="{Binding Resultado, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="*"/>
-            </DataGrid.Columns>
-        </DataGrid>
-
-        <!-- Bloque Bioquimica -->
-        <Border Grid.Row="1" BorderBrush="Gray" BorderThickness="1" Padding="10" Margin="0,10,0,0" CornerRadius="4">
+        <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto">
             <StackPanel>
-                <TextBlock Text="Bioquimica en liquido de puncion" FontWeight="Bold" Margin="0,0,0,6"/>
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                    </Grid.RowDefinitions>
+                <!-- Cards texto -->
+                <ItemsControl ItemsSource="{Binding Items}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <WrapPanel/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border Style="{StaticResource LpCard}">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="*"/>
+                                    </Grid.RowDefinitions>
+                                    <TextBlock Grid.Row="0" Text="{Binding Determinacion}" FontWeight="SemiBold" FontSize="13" TextWrapping="Wrap" Margin="0,0,0,8"/>
+                                    <Border Grid.Row="1" BorderBrush="#D6DEE5" BorderThickness="1" Background="White" CornerRadius="6">
+                                        <TextBox BorderThickness="0" Padding="6,4" Height="34" Text="{Binding Resultado, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" AcceptsReturn="False" TextWrapping="NoWrap"/>
+                                    </Border>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
 
-                    <Label Grid.Row="0" Grid.Column="0" Content="Urea"/>
-                    <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding Urea, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource StringToDouble}}" Style="{StaticResource RightAlignedTextBox}"/>
+                <!-- Card Bioquimica -->
+                <Border Style="{StaticResource LpCard}" Width="930">
+                    <StackPanel>
+                        <TextBlock Text="Bioquimica" FontWeight="SemiBold" FontSize="15" Margin="0,0,0,10"/>
+                        <UniformGrid Columns="4" Rows="2" Margin="0,0,0,4">
+                            <StackPanel Margin="0,0,18,12">
+                                <TextBlock Text="Urea" FontWeight="Bold"/>
+                                <TextBox Text="{Binding Urea, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource StringToDouble}}" Style="{StaticResource NumericInput}"/>
+                            </StackPanel>
+                            <StackPanel Margin="0,0,18,12">
+                                <TextBlock Text="Creatinina" FontWeight="Bold"/>
+                                <TextBox Text="{Binding Creatinina, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource StringToDouble}}" Style="{StaticResource NumericInput}"/>
+                            </StackPanel>
+                            <StackPanel Margin="0,0,18,12">
+                                <TextBlock Text="FAL" FontWeight="Bold"/>
+                                <TextBox Text="{Binding FAL, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource StringToDouble}}" Style="{StaticResource NumericInput}"/>
+                            </StackPanel>
+                            <StackPanel Margin="0,0,18,12">
+                                <TextBlock Text="Colesterol Total" FontWeight="Bold"/>
+                                <TextBox Text="{Binding ColesterolTotal, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource StringToDouble}}" Style="{StaticResource NumericInput}"/>
+                            </StackPanel>
+                            <StackPanel Margin="0,0,18,12">
+                                <TextBlock Text="Trigliceridos" FontWeight="Bold"/>
+                                <TextBox Text="{Binding Trigliceridos, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource StringToDouble}}" Style="{StaticResource NumericInput}"/>
+                            </StackPanel>
+                            <StackPanel Margin="0,0,18,12">
+                                <TextBlock Text="Bilirrubina Total" FontWeight="Bold"/>
+                                <TextBox Text="{Binding BilirrubinaTotal, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource StringToDouble}}" Style="{StaticResource NumericInput}"/>
+                            </StackPanel>
+                            <StackPanel Margin="0,0,18,12">
+                                <TextBlock Text="Bilirrubina Directa" FontWeight="Bold"/>
+                                <TextBox Text="{Binding BilirrubinaDirecta, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource StringToDouble}}" Style="{StaticResource NumericInput}"/>
+                            </StackPanel>
+                            <StackPanel Margin="0,0,18,12">
+                                <TextBlock Text="Bilirrubina Indirecta" FontWeight="Bold"/>
+                                <TextBox Text="{Binding BilirrubinaIndirecta, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource StringToDouble}}" Style="{StaticResource NumericInput}"/>
+                            </StackPanel>
+                        </UniformGrid>
+                    </StackPanel>
+                </Border>
 
-                    <Label Grid.Row="1" Grid.Column="0" Content="Creatinina"/>
-                    <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding Creatinina, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource StringToDouble}}" Style="{StaticResource RightAlignedTextBox}"/>
-
-                    <Label Grid.Row="2" Grid.Column="0" Content="FAL"/>
-                    <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding FAL, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource StringToDouble}}" Style="{StaticResource RightAlignedTextBox}"/>
-
-                    <Label Grid.Row="3" Grid.Column="0" Content="Colesterol total"/>
-                    <TextBox Grid.Row="3" Grid.Column="1" Text="{Binding ColesterolTotal, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource StringToDouble}}" Style="{StaticResource RightAlignedTextBox}"/>
-
-                    <Label Grid.Row="4" Grid.Column="0" Content="Trigliceridos"/>
-                    <TextBox Grid.Row="4" Grid.Column="1" Text="{Binding Trigliceridos, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource StringToDouble}}" Style="{StaticResource RightAlignedTextBox}"/>
-
-                    <Label Grid.Row="5" Grid.Column="0" Content="Bilirrubina Total"/>
-                    <TextBox Grid.Row="5" Grid.Column="1" Text="{Binding BilirrubinaTotal, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource StringToDouble}}" Style="{StaticResource RightAlignedTextBox}"/>
-
-                    <Label Grid.Row="6" Grid.Column="0" Content="Bilirrubina Directa"/>
-                    <TextBox Grid.Row="6" Grid.Column="1" Text="{Binding BilirrubinaDirecta, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource StringToDouble}}" Style="{StaticResource RightAlignedTextBox}"/>
-
-                    <Label Grid.Row="7" Grid.Column="0" Content="Bilirrubina Indirecta"/>
-                    <TextBox Grid.Row="7" Grid.Column="1" Text="{Binding BilirrubinaIndirecta, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource StringToDouble}}" Style="{StaticResource RightAlignedTextBox}"/>
-                </Grid>
+                <!-- Card Observaciones -->
+                <Border Style="{StaticResource LpCard}" Width="930" Margin="8,8,8,0">
+                    <StackPanel>
+                        <TextBlock Text="Observaciones" FontWeight="Bold" Margin="0,0,0,6"/>
+                        <Border BorderBrush="#D6DEE5" BorderThickness="1" Background="White" CornerRadius="6">
+                            <TextBox BorderThickness="0" Padding="8,6" Text="{Binding Observaciones, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" AcceptsReturn="True" Height="140" TextWrapping="Wrap"/>
+                        </Border>
+                    </StackPanel>
+                </Border>
             </StackPanel>
-        </Border>
+        </ScrollViewer>
 
-        <StackPanel Grid.Row="2" Orientation="Vertical" Margin="0,10,0,0">
-            <TextBlock Text="Observaciones" FontWeight="Bold"/>
-            <TextBox Text="{Binding Observaciones, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" AcceptsReturn="True" Height="140" TextWrapping="Wrap"/>
-        </StackPanel>
-
-        <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,12,0,0">
+        <!-- Botones -->
+        <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,18,0,0">
             <Button Width="170" Height="44" Style="{StaticResource ModernButtonBase}" Click="OnConfirmClick">
                 <StackPanel Orientation="Horizontal">
                     <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE10B;" FontSize="18" Margin="0,0,8,0"/>

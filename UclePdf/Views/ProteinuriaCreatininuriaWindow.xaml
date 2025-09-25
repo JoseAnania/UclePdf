@@ -3,82 +3,147 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="clr-namespace:UclePdf.ViewModels"
         xmlns:conv="clr-namespace:UclePdf.Converters"
-        Title="Relacion Proteinuria/Creatininuria" Height="520" Width="900">
+        Title="Relacion Proteinuria / Creatininuria" Height="560" Width="900">
     <Window.Resources>
         <conv:StringToDoubleInvariantConverter x:Key="StringToDouble"/>
-        <Style x:Key="PrimaryButton" TargetType="Button">
-            <Setter Property="Padding" Value="20,10"/>
-            <Setter Property="Margin" Value="0,0,8,0"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Background" Value="#FF1976D2"/>
-            <Setter Property="Foreground" Value="White"/>
-        </Style>
-        <Style x:Key="DangerButton" TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
-            <Setter Property="Background" Value="#FFD32F2F"/>
-        </Style>
-        <Style x:Key="RightAlignedTextBox" TargetType="TextBox">
+        <!-- Brushes -->
+        <SolidColorBrush x:Key="CardBg" Color="#FFFFFFFF"/>
+        <SolidColorBrush x:Key="CardBorder" Color="#E0E6EC"/>
+        <SolidColorBrush x:Key="CardBorderHover" Color="#B5C6D6"/>
+        <SolidColorBrush x:Key="InputBorder" Color="#B8C4CE"/>
+        <SolidColorBrush x:Key="InputBorderHover" Color="#7FA6C5"/>
+        <SolidColorBrush x:Key="InputBorderFocus" Color="#1565C0"/>
+        <SolidColorBrush x:Key="ErrorBorder" Color="#D32F2F"/>
+
+        <!-- Numeric input style -->
+        <Style x:Key="NumericInput" TargetType="TextBox">
+            <Setter Property="Width" Value="140"/>
+            <Setter Property="Padding" Value="6,4"/>
             <Setter Property="HorizontalContentAlignment" Value="Right"/>
+            <Setter Property="BorderBrush" Value="{StaticResource InputBorder}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TextBox">
+                        <Border x:Name="Bd" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="4">
+                            <ScrollViewer x:Name="PART_ContentHost"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="BorderBrush" Value="{StaticResource InputBorderHover}"/>
+                            </Trigger>
+                            <Trigger Property="IsKeyboardFocused" Value="True">
+                                <Setter TargetName="Bd" Property="BorderBrush" Value="{StaticResource InputBorderFocus}"/>
+                                <Setter TargetName="Bd" Property="BorderThickness" Value="2"/>
+                            </Trigger>
+                            <Trigger Property="Validation.HasError" Value="True">
+                                <Setter TargetName="Bd" Property="BorderBrush" Value="{StaticResource ErrorBorder}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Card style -->
+        <Style x:Key="PcrCard" TargetType="Border">
+            <Setter Property="Background" Value="{StaticResource CardBg}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource CardBorder}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="10"/>
+            <Setter Property="Padding" Value="12"/>
+            <Setter Property="Margin" Value="8"/>
+            <Setter Property="MinWidth" Value="260"/>
+            <Setter Property="MaxWidth" Value="280"/>
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect BlurRadius="6" ShadowDepth="0" Opacity="0.08"/>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="BorderBrush" Value="{StaticResource CardBorderHover}"/>
+                    <Setter Property="Effect">
+                        <Setter.Value>
+                            <DropShadowEffect BlurRadius="12" ShadowDepth="0" Opacity="0.18"/>
+                        </Setter.Value>
+                    </Setter>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Referencias card (full width row) -->
+        <Style x:Key="RefCard" TargetType="Border" BasedOn="{StaticResource PcrCard}">
+            <Setter Property="MinWidth" Value="820"/>
+            <Setter Property="MaxWidth" Value="Infinity"/>
         </Style>
     </Window.Resources>
+
     <Window.DataContext>
         <vm:ProteinuriaCreatininuriaViewModel/>
     </Window.DataContext>
-    <Grid Margin="10">
+
+    <Grid Margin="12">
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="300"/>
-        </Grid.ColumnDefinitions>
 
-        <!-- Grilla de datos -->
-        <DataGrid Grid.Row="0" Grid.Column="0" ItemsSource="{Binding Items}" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" Margin="0,0,10,0">
-            <DataGrid.Columns>
-                <DataGridTextColumn Header="Determinacion" Binding="{Binding Determinacion}" IsReadOnly="True" Width="*"/>
-                <DataGridTextColumn Header="Valor hallado" Width="180">
-                    <DataGridTextColumn.Binding>
-                        <Binding Path="Valor" Mode="TwoWay" UpdateSourceTrigger="PropertyChanged" Converter="{StaticResource StringToDouble}">
-                            <Binding.ValidationRules>
-                                <ExceptionValidationRule/>
-                            </Binding.ValidationRules>
-                        </Binding>
-                    </DataGridTextColumn.Binding>
-                    <DataGridTextColumn.ElementStyle>
-                        <Style TargetType="TextBlock">
-                            <Setter Property="HorizontalAlignment" Value="Right"/>
-                            <Setter Property="TextAlignment" Value="Right"/>
-                            <Setter Property="Text" Value="{Binding Valor, Converter={StaticResource StringToDouble}}"/>
-                        </Style>
-                    </DataGridTextColumn.ElementStyle>
-                    <DataGridTextColumn.EditingElementStyle>
-                        <Style TargetType="TextBox" BasedOn="{StaticResource RightAlignedTextBox}">
-                            <EventSetter Event="PreviewTextInput" Handler="OnPreviewTextInputNumeric"/>
-                            <EventSetter Event="PreviewKeyDown" Handler="OnPreviewKeyDownNumeric"/>
-                        </Style>
-                    </DataGridTextColumn.EditingElementStyle>
-                </DataGridTextColumn>
-            </DataGrid.Columns>
-        </DataGrid>
+        <!-- Cards -->
+        <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto">
+            <ItemsControl ItemsSource="{Binding Items}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel IsItemsHost="True"/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border Style="{StaticResource PcrCard}">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <TextBlock Grid.Row="0" Text="{Binding Determinacion}" FontWeight="SemiBold" FontSize="13" TextWrapping="Wrap" Margin="0,0,0,8"/>
+                                <StackPanel Grid.Row="1" Orientation="Horizontal" VerticalAlignment="Center">
+                                    <TextBlock Text="Valor:" FontWeight="Bold" Margin="0,0,6,0" VerticalAlignment="Center"/>
+                                    <TextBox Text="{Binding Valor, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource StringToDouble}}" Style="{StaticResource NumericInput}" PreviewTextInput="OnPreviewTextInputNumeric" PreviewKeyDown="OnPreviewKeyDownNumeric"/>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+                <ItemsControl.Template>
+                    <ControlTemplate TargetType="ItemsControl">
+                        <StackPanel>
+                            <ItemsPresenter/>
+                            <!-- Referencias block as separate card after items -->
+                            <Border Style="{StaticResource RefCard}" Margin="8,12,8,4">
+                                <StackPanel>
+                                    <TextBlock Text="Valores de referencia" FontWeight="SemiBold" FontSize="14" Margin="0,0,0,6"/>
+                                    <TextBlock Text="{Binding DataContext.ReferenciasBloque, RelativeSource={RelativeSource AncestorType=ItemsControl}}" TextWrapping="Wrap" FontSize="12"/>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+                    </ControlTemplate>
+                </ItemsControl.Template>
+            </ItemsControl>
+        </ScrollViewer>
 
-        <!-- Panel lateral de referencias -->
-        <Border Grid.Row="0" Grid.Column="1" BorderBrush="Gray" BorderThickness="1" Padding="10" CornerRadius="4">
-            <StackPanel>
-                <TextBlock Text="Valores de referencia" FontWeight="Bold" Margin="0,0,0,6"/>
-                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-                    <TextBlock Text="{Binding ReferenciasBloque}" TextWrapping="Wrap"/>
-                </ScrollViewer>
-            </StackPanel>
-        </Border>
-
-        <StackPanel Grid.Row="1" Grid.ColumnSpan="2" Orientation="Vertical" Margin="0,10,0,0">
-            <TextBlock Text="Observaciones" FontWeight="Bold"/>
-            <TextBox Text="{Binding Observaciones, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" AcceptsReturn="True" Height="120" TextWrapping="Wrap"/>
+        <!-- Observaciones -->
+        <StackPanel Grid.Row="1" Margin="0,16,0,0">
+            <TextBlock Text="Observaciones" FontWeight="Bold" Margin="0,0,0,4"/>
+            <Border CornerRadius="6" BorderBrush="#E0E6EC" BorderThickness="1" Background="White">
+                <TextBox BorderThickness="0" Padding="8,6" Text="{Binding Observaciones, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" AcceptsReturn="True" Height="110" TextWrapping="Wrap"/>
+            </Border>
         </StackPanel>
 
-        <StackPanel Grid.Row="2" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,12,0,0">
+        <!-- Botones -->
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,16,0,0">
             <Button Width="170" Height="44" Style="{StaticResource ModernButtonBase}" Click="OnConfirmClick">
                 <StackPanel Orientation="Horizontal">
                     <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE10B;" FontSize="18" Margin="0,0,8,0"/>

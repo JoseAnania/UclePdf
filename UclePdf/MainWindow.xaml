@@ -525,7 +525,9 @@
                                         </Style>
                                     </Button.Style>
                                     <StackPanel>
-                                        <TextBlock Text="Relación proteinuria/creatininuria" TextAlignment="Center" FontSize="13" FontWeight="SemiBold"/>
+                                        <TextBlock TextAlignment="Center" FontSize="13" FontWeight="SemiBold" TextWrapping="Wrap">
+                                            <Run Text="Relación"/><LineBreak/><Run Text="proteinuria/creatininuria"/>
+                                        </TextBlock>
                                         <TextBlock Text="" FontFamily="Segoe MDL2 Assets" FontSize="28" Margin="0,6,0,0" HorizontalAlignment="Center" Visibility="{Binding IsProteinuriaLoaded, Converter={StaticResource BoolToVisibilityConverter}}"/>
                                     </StackPanel>
                                 </Button>

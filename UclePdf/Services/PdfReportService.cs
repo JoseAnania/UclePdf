@@ -589,13 +589,15 @@ public class PdfReportService : IPdfReportService
                     var especieNormI = (ionograma.Especie ?? "").Trim().ToLowerInvariant();
                     bool esCanI = especieNormI.Contains("can");
                     bool esFelI = especieNormI.Contains("fel");
+                    var tituloRefI = esCanI ? "Valores de Referencia (Canino)" : esFelI ? "Valores de Referencia (Felino)" : "Valores de Referencia";
+
                     col.Item().Table(table =>
                     {
                         table.ColumnsDefinition(c => { c.RelativeColumn(1.4f); c.ConstantColumn(60); c.RelativeColumn(); });
                         void HeaderCellI(string t) { var cell = table.Cell(); cell.Element(x => x.Background(Colors.Grey.Lighten3).Padding(3).Text(t).FontSize(8).SemiBold()); }
                         HeaderCellI("Determinación");
                         HeaderCellI("Valor");
-                        HeaderCellI("Referencia");
+                        HeaderCellI(tituloRefI);
                         foreach (var r in ionograma.Rows.Where(r => r.Valor.HasValue))
                         {
                             var refBase = esCanI ? r.RefCanino : esFelI ? r.RefFelino : r.RefCanino;
@@ -661,9 +663,9 @@ public class PdfReportService : IPdfReportService
                         // (Título eliminado para evitar redundancia)
                         col.Item().Table(table =>
                         {
-                            table.ColumnsDefinition(c => { c.RelativeColumn(1.2f); c.ConstantColumn(60); c.RelativeColumn(); });
+                            table.ColumnsDefinition(c => { c.RelativeColumn(1.5f); c.ConstantColumn(60); c.RelativeColumn(); });
                             void HB(string t) { var cell = table.Cell(); cell.Element(x => x.Background(Colors.Grey.Lighten3).Padding(3).Text(t).FontSize(8).SemiBold()); }
-                            HB("Bioquímica"); HB("Valor"); HB("Unidades");
+                            HB("Bioquímica"); HB("Resultado"); HB("Unidades");
                             foreach (var r in liquidoPuncion.BioqRows.Where(r => r.Valor.HasValue))
                             {
                                 table.Cell().Element(c => c.Padding(3).Text(r.Determinacion).FontSize(8f));
