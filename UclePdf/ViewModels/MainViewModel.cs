@@ -611,7 +611,8 @@ public class MainViewModel : ObservableObject
             RaspajeData? raspajeData = null;
             if (IsRaspajeLoaded && _raspajes.TryGetValue(ConfirmedPedido!, out var rspvm))
             {
-                var rowsR = rspvm.Items.Where(i => !string.IsNullOrWhiteSpace(i.Resultado))
+                var rowsR = rspvm.Items
+                    .Where(i => !string.IsNullOrWhiteSpace(i.Resultado) && !string.Equals(i.Determinacion, "Determinacion", StringComparison.OrdinalIgnoreCase))
                     .Select(i => new RaspajeRow(i.Determinacion, i.Resultado))
                     .ToList();
                 if (rowsR.Count > 0)

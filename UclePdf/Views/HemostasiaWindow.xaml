@@ -3,29 +3,89 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="clr-namespace:UclePdf.ViewModels"
         xmlns:conv="clr-namespace:UclePdf.Converters"
-        Title="Hemostasia" Height="400" Width="700">
+        Title="Hemostasia" Height="520" Width="820">
     <Window.Resources>
         <conv:StringToDoubleInvariantConverter x:Key="StringToDouble"/>
-        <Style x:Key="PrimaryButton" TargetType="Button">
-            <Setter Property="Padding" Value="20,10"/>
-            <Setter Property="Margin" Value="0,0,8,0"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Background" Value="#FF1976D2"/>
-            <Setter Property="Foreground" Value="White"/>
-        </Style>
-        <Style x:Key="DangerButton" TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
-            <Setter Property="Background" Value="#FFD32F2F"/>
-        </Style>
-        <Style x:Key="RightAlignedTextBox" TargetType="TextBox">
+        <!-- Brushes -->
+        <SolidColorBrush x:Key="CardBg" Color="#FFFFFFFF"/>
+        <SolidColorBrush x:Key="CardBorder" Color="#E0E6EC"/>
+        <SolidColorBrush x:Key="CardBorderHover" Color="#B5C6D6"/>
+        <SolidColorBrush x:Key="InputBorder" Color="#B8C4CE"/>
+        <SolidColorBrush x:Key="InputBorderHover" Color="#7FA6C5"/>
+        <SolidColorBrush x:Key="InputBorderFocus" Color="#1565C0"/>
+        <SolidColorBrush x:Key="ErrorBorder" Color="#D32F2F"/>
+
+        <!-- Input style -->
+        <Style x:Key="NumericInput" TargetType="TextBox">
+            <Setter Property="Width" Value="110"/>
+            <Setter Property="Padding" Value="6,4"/>
             <Setter Property="HorizontalContentAlignment" Value="Right"/>
+            <Setter Property="BorderBrush" Value="{StaticResource InputBorder}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TextBox">
+                        <Border x:Name="Bd" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="4">
+                            <ScrollViewer x:Name="PART_ContentHost"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="BorderBrush" Value="{StaticResource InputBorderHover}"/>
+                            </Trigger>
+                            <Trigger Property="IsKeyboardFocused" Value="True">
+                                <Setter TargetName="Bd" Property="BorderBrush" Value="{StaticResource InputBorderFocus}"/>
+                                <Setter TargetName="Bd" Property="BorderThickness" Value="2"/>
+                            </Trigger>
+                            <Trigger Property="Validation.HasError" Value="True">
+                                <Setter TargetName="Bd" Property="BorderBrush" Value="{StaticResource ErrorBorder}"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="Bd" Property="Opacity" Value="0.55"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
         </Style>
-        <Style x:Key="RightAlignedTextBlock" TargetType="TextBlock">
-            <Setter Property="HorizontalAlignment" Value="Right"/>
+
+        <!-- Card style -->
+        <Style x:Key="HemoCard" TargetType="Border">
+            <Setter Property="Background" Value="{StaticResource CardBg}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource CardBorder}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="10"/>
+            <Setter Property="Padding" Value="10"/>
+            <Setter Property="Margin" Value="8"/>
+            <Setter Property="Width" Value="240"/>
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect BlurRadius="6" ShadowDepth="0" Opacity="0.08"/>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="BorderBrush" Value="{StaticResource CardBorderHover}"/>
+                    <Setter Property="Effect">
+                        <Setter.Value>
+                            <DropShadowEffect BlurRadius="12" ShadowDepth="0" Opacity="0.18"/>
+                        </Setter.Value>
+                    </Setter>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="RefText" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="Foreground" Value="#666"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
         </Style>
     </Window.Resources>
+
     <Window.DataContext>
         <vm:HemostasiaViewModel/>
     </Window.DataContext>
+
     <Grid Margin="10">
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
@@ -33,39 +93,47 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <DataGrid Grid.Row="0" ItemsSource="{Binding Items}" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False">
-            <DataGrid.Columns>
-                <DataGridTextColumn Header="Determinacion" Binding="{Binding Determinacion}" IsReadOnly="True" Width="*"/>
-                <DataGridTextColumn Header="Valor hallado" Width="140">
-                    <DataGridTextColumn.Binding>
-                        <Binding Path="Valor" Mode="TwoWay" UpdateSourceTrigger="PropertyChanged" Converter="{StaticResource StringToDouble}">
-                            <Binding.ValidationRules>
-                                <ExceptionValidationRule/>
-                            </Binding.ValidationRules>
-                        </Binding>
-                    </DataGridTextColumn.Binding>
-                    <DataGridTextColumn.EditingElementStyle>
-                        <Style TargetType="TextBox" BasedOn="{StaticResource RightAlignedTextBox}">
-                            <EventSetter Event="PreviewTextInput" Handler="OnPreviewTextInputNumeric"/>
-                            <EventSetter Event="PreviewKeyDown" Handler="OnPreviewKeyDownNumeric"/>
-                        </Style>
-                    </DataGridTextColumn.EditingElementStyle>
-                    <DataGridTextColumn.ElementStyle>
-                        <Style TargetType="TextBlock" BasedOn="{StaticResource RightAlignedTextBlock}">
-                            <Setter Property="Text" Value="{Binding Valor, Converter={StaticResource StringToDouble}}"/>
-                        </Style>
-                    </DataGridTextColumn.ElementStyle>
-                </DataGridTextColumn>
-                <DataGridTextColumn Header="Valor de referencia" Binding="{Binding Referencia}" IsReadOnly="True" Width="170"/>
-            </DataGrid.Columns>
-        </DataGrid>
+        <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto">
+            <ItemsControl ItemsSource="{Binding Items}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel IsItemsHost="True"/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border Style="{StaticResource HemoCard}">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <TextBlock Grid.Row="0" Text="{Binding Determinacion}" FontWeight="SemiBold" FontSize="13" TextWrapping="Wrap" Margin="0,0,0,6"/>
+                                <StackPanel Grid.Row="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,0,6">
+                                    <TextBlock Text="Valor:" FontWeight="Bold" Margin="0,0,6,0" VerticalAlignment="Center"/>
+                                    <TextBox Text="{Binding Valor, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource StringToDouble}}" Style="{StaticResource NumericInput}" PreviewTextInput="OnPreviewTextInputNumeric" PreviewKeyDown="OnPreviewKeyDownNumeric"/>
+                                </StackPanel>
+                                <StackPanel Grid.Row="2" Orientation="Vertical">
+                                    <TextBlock Style="{StaticResource RefText}"><Run Text="Referencia: "/><Run Text="{Binding Referencia, Mode=OneWay}" FontWeight="SemiBold"/></TextBlock>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
 
-        <StackPanel Grid.Row="1" Orientation="Vertical" Margin="0,10,0,0">
-            <TextBlock Text="Observaciones" FontWeight="Bold"/>
-            <TextBox Text="{Binding Observaciones, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" AcceptsReturn="True" Height="80" TextWrapping="Wrap"/>
+        <!-- Observaciones -->
+        <StackPanel Grid.Row="1" Orientation="Vertical" Margin="0,12,0,0">
+            <TextBlock Text="Observaciones" FontWeight="Bold" Margin="0,0,0,4"/>
+            <Border CornerRadius="6" BorderBrush="#E0E6EC" BorderThickness="1" Background="White">
+                <TextBox BorderThickness="0" Padding="8,6" Text="{Binding Observaciones, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" AcceptsReturn="True" Height="80" TextWrapping="Wrap"/>
+            </Border>
         </StackPanel>
 
-        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10,0,0">
+        <!-- Botones -->
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,14,0,0">
             <Button Width="170" Height="44" Style="{StaticResource ModernButtonBase}" Click="OnConfirmClick">
                 <StackPanel Orientation="Horizontal">
                     <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE10B;" FontSize="18" Margin="0,0,8,0"/>
