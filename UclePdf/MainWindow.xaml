@@ -3,37 +3,22 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:UclePdf"
         xmlns:vm="clr-namespace:UclePdf.ViewModels"
-        xmlns:controls="clr-namespace:UclePdf.Controls"
         xmlns:conv="clr-namespace:UclePdf.Core.Converters"
         mc:Ignorable="d"
-        Title="UCLE PDF" Height="900" Width="1200">
+        Title="UCLE PDF" Height="900" Width="1200" WindowState="Maximized">
     <Window.Resources>
         <conv:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+        <!-- Restored classic styles required by existing XAML references -->
         <Style x:Key="PrimaryButton" TargetType="Button">
             <Setter Property="Padding" Value="20,10"/>
             <Setter Property="Margin" Value="0,0,8,0"/>
             <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Background" Value="#FF1976D2"/>
+            <Setter Property="Background" Value="#1976D2"/>
             <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
         </Style>
-        <Style x:Key="DangerButton" TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
-            <Setter Property="Background" Value="#FFD32F2F"/>
-        </Style>
-        <Style x:Key="SuccessButton" TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
-            <Setter Property="Background" Value="#2E7D32"/>
-        </Style>
-        <Style x:Key="FilterLabel" TargetType="TextBlock">
-            <Setter Property="Margin" Value="0,0,6,0"/>
-            <Setter Property="VerticalAlignment" Value="Center"/>
-        </Style>
-        <Style x:Key="FilterBox" TargetType="FrameworkElement">
-            <Setter Property="Margin" Value="0,0,12,0"/>
-            <Setter Property="VerticalAlignment" Value="Center"/>
-            <Setter Property="MinWidth" Value="140"/>
-        </Style>
-        <!-- Estilo base para botones de informes uniformes -->
         <Style x:Key="ReportButtonBase" TargetType="Button">
             <Setter Property="Width" Value="170"/>
             <Setter Property="Height" Value="100"/>
@@ -51,6 +36,164 @@
                     </DataTemplate>
                 </Setter.Value>
             </Setter>
+        </Style>
+        <!-- Modern button styles -->
+        <Style x:Key="ModernButtonBase" TargetType="Button">
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Padding" Value="14,8"/>
+            <Setter Property="Margin" Value="0,0,8,0"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Background" Value="#1565C0"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Grid>
+                            <Border x:Name="Bg" Background="{TemplateBinding Background}" CornerRadius="10" Padding="{TemplateBinding Padding}">
+                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bg" Property="Effect">
+                                    <Setter.Value>
+                                        <DropShadowEffect BlurRadius="10" ShadowDepth="0" Opacity="0.35"/>
+                                    </Setter.Value>
+                                </Setter>
+                                <Setter TargetName="Bg" Property="Background" Value="#1E74D9"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Bg" Property="RenderTransformOrigin" Value="0.5,0.5"/>
+                                <Setter TargetName="Bg" Property="RenderTransform">
+                                    <Setter.Value>
+                                        <ScaleTransform ScaleX="0.95" ScaleY="0.95"/>
+                                    </Setter.Value>
+                                </Setter>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.45"/>
+                            </Trigger>
+                            <Trigger Property="IsKeyboardFocused" Value="True">
+                                <Setter TargetName="Bg" Property="BorderThickness" Value="2"/>
+                                <Setter TargetName="Bg" Property="BorderBrush" Value="#80FFFFFF"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="ModernButtonDanger" BasedOn="{StaticResource ModernButtonBase}" TargetType="Button">
+            <Setter Property="Background" Value="#D32F2F"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Grid>
+                            <Border x:Name="Bg" Background="{TemplateBinding Background}" CornerRadius="10" Padding="{TemplateBinding Padding}">
+                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bg" Property="Effect">
+                                    <Setter.Value>
+                                        <DropShadowEffect BlurRadius="10" ShadowDepth="0" Opacity="0.4"/>
+                                    </Setter.Value>
+                                </Setter>
+                                <Setter TargetName="Bg" Property="Background" Value="#E53A3A"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Bg" Property="RenderTransformOrigin" Value="0.5,0.5"/>
+                                <Setter TargetName="Bg" Property="RenderTransform">
+                                    <Setter.Value>
+                                        <ScaleTransform ScaleX="0.95" ScaleY="0.95"/>
+                                    </Setter.Value>
+                                </Setter>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.45"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="ModernButtonNeutral" BasedOn="{StaticResource ModernButtonBase}" TargetType="Button">
+            <Setter Property="Background" Value="#546E7A"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Grid>
+                            <Border x:Name="Bg" Background="{TemplateBinding Background}" CornerRadius="10" Padding="{TemplateBinding Padding}">
+                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bg" Property="Effect">
+                                    <Setter.Value>
+                                        <DropShadowEffect BlurRadius="10" ShadowDepth="0" Opacity="0.35"/>
+                                    </Setter.Value>
+                                </Setter>
+                                <Setter TargetName="Bg" Property="Background" Value="#607D8B"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Bg" Property="RenderTransformOrigin" Value="0.5,0.5"/>
+                                <Setter TargetName="Bg" Property="RenderTransform">
+                                    <Setter.Value>
+                                        <ScaleTransform ScaleX="0.95" ScaleY="0.95"/>
+                                    </Setter.Value>
+                                </Setter>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.45"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <!-- Modern input styles -->
+        <Style x:Key="ModernTextBox" TargetType="TextBox">
+            <Setter Property="Margin" Value="0,0,12,0"/>
+            <Setter Property="MinWidth" Value="140"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TextBox">
+                        <Border x:Name="Bd" Background="#FFFFFF" CornerRadius="6" BorderBrush="#CFD8DC" BorderThickness="1" Padding="6,4">
+                            <ScrollViewer x:Name="PART_ContentHost"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="BorderBrush" Value="#90A4AE"/>
+                            </Trigger>
+                            <Trigger Property="IsKeyboardFocused" Value="True">
+                                <Setter TargetName="Bd" Property="BorderBrush" Value="#1565C0"/>
+                                <Setter TargetName="Bd" Property="BorderThickness" Value="2"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="Bd" Property="Opacity" Value="0.45"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="ModernComboBox" TargetType="ComboBox">
+            <Setter Property="Margin" Value="0,0,12,0"/>
+            <Setter Property="MinWidth" Value="140"/>
+            <Setter Property="Padding" Value="4"/>
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="BorderBrush" Value="#CFD8DC"/>
+            <Setter Property="BorderThickness" Value="1"/>
+        </Style>
+        <Style x:Key="ModernDatePicker" TargetType="DatePicker">
+            <Setter Property="Margin" Value="0,0,12,0"/>
+            <Setter Property="MinWidth" Value="140"/>
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="BorderBrush" Value="#CFD8DC"/>
+            <Setter Property="BorderThickness" Value="1"/>
         </Style>
     </Window.Resources>
     <Window.DataContext>
@@ -78,50 +221,50 @@
                                         <ColumnDefinition Width="Auto"/>
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto"/>
-                                    </Grid.RowDefinitions>
                                     <TextBlock Text="Archivo Pedidos:" VerticalAlignment="Center" Margin="0,0,6,0"/>
-                                    <TextBox Grid.Column="1" Text="{Binding PathA}" Margin="0,0,6,0"/>
-                                    <Button Grid.Column="2" Content="Buscar" Command="{Binding BrowsePedidosCommand}" Margin="0,0,6,0"/>
+                                    <TextBox Grid.Column="1" Text="{Binding PathA}" Margin="0,0,6,0" Style="{StaticResource ModernTextBox}"/>
+                                    <Button Grid.Column="2" Command="{Binding BrowsePedidosCommand}" Style="{StaticResource ModernButtonBase}" Margin="0,0,6,0">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock FontFamily="Segoe MDL2 Assets" Text="" Margin="0,0,6,0"/>
+                                            <TextBlock Text="Buscar"/>
+                                        </StackPanel>
+                                    </Button>
                                     <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center" Margin="6,0,6,0">
                                         <TextBlock Text="Desde" VerticalAlignment="Center" Margin="0,0,6,0"/>
-                                        <DatePicker SelectedDate="{Binding FilterFromDate, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="140"/>
+                                        <DatePicker SelectedDate="{Binding FilterFromDate, Mode=TwoWay}" Width="140" Style="{StaticResource ModernDatePicker}"/>
                                     </StackPanel>
-                                    <Button Grid.Column="4" Content="Cargar" Command="{Binding LoadPedidosCommand}"/>
+                                    <Button Grid.Column="4" Command="{Binding LoadPedidosCommand}" Style="{StaticResource ModernButtonNeutral}">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock FontFamily="Segoe MDL2 Assets" Text="" Margin="0,0,6,0"/>
+                                            <TextBlock Text="Cargar"/>
+                                        </StackPanel>
+                                    </Button>
                                 </Grid>
                             </GroupBox>
 
-                            <!-- Filtros de búsqueda -->
                             <GroupBox Grid.Row="1" Header="Filtros" Padding="10" Margin="0,10,0,0">
-                                <DockPanel LastChildFill="True">
-                                    <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="Sucursal" Style="{StaticResource FilterLabel}"/>
-                                        <ComboBox ItemsSource="{Binding SucursalesOpciones}" SelectedItem="{Binding FilterSucursal, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FilterBox}"/>
-
-                                        <TextBlock Text="Veterinario" Style="{StaticResource FilterLabel}"/>
-                                        <TextBox Text="{Binding FilterVeterinario, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FilterBox}"/>
-
-                                        <TextBlock Text="Propietario" Style="{StaticResource FilterLabel}"/>
-                                        <TextBox Text="{Binding FilterPropietario, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FilterBox}"/>
-
-                                        <TextBlock Text="Paciente" Style="{StaticResource FilterLabel}"/>
-                                        <TextBox Text="{Binding FilterPaciente, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FilterBox}"/>
-
-                                        <TextBlock Text="Especie" Style="{StaticResource FilterLabel}"/>
-                                        <ComboBox ItemsSource="{Binding EspecieFiltroOpciones}" SelectedItem="{Binding FilterEspecie, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FilterBox}"/>
+                                <DockPanel>
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" MaxWidth="1400">
+                                        <TextBlock Text="Sucursal" Margin="0,0,6,0" VerticalAlignment="Center"/>
+                                        <ComboBox ItemsSource="{Binding SucursalesOpciones}" SelectedItem="{Binding FilterSucursal, Mode=TwoWay}" Margin="0,0,12,0" MinWidth="140" Style="{StaticResource ModernComboBox}"/>
+                                        <TextBlock Text="Veterinario" Margin="0,0,6,0" VerticalAlignment="Center"/>
+                                        <TextBox Text="{Binding FilterVeterinario, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,12,0" MinWidth="140" Style="{StaticResource ModernTextBox}"/>
+                                        <TextBlock Text="Propietario" Margin="0,0,6,0" VerticalAlignment="Center"/>
+                                        <TextBox Text="{Binding FilterPropietario, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,12,0" MinWidth="140" Style="{StaticResource ModernTextBox}"/>
+                                        <TextBlock Text="Paciente" Margin="0,0,6,0" VerticalAlignment="Center"/>
+                                        <TextBox Text="{Binding FilterPaciente, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,12,0" MinWidth="140" Style="{StaticResource ModernTextBox}"/>
+                                        <TextBlock Text="Especie" Margin="0,0,6,0" VerticalAlignment="Center"/>
+                                        <ComboBox ItemsSource="{Binding EspecieFiltroOpciones}" SelectedItem="{Binding FilterEspecie, Mode=TwoWay}" Margin="0,0,12,0" MinWidth="140" Style="{StaticResource ModernComboBox}"/>
                                     </StackPanel>
                                 </DockPanel>
                             </GroupBox>
 
-                            <!-- Vista previa -->
                             <GroupBox Grid.Row="2" Header="Vista previa" Padding="10" Margin="0,10,0,0">
                                 <Grid>
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="Auto"/>
                                         <RowDefinition Height="*"/>
                                     </Grid.RowDefinitions>
-
                                     <TextBlock Text="Pedidos" FontWeight="Bold"/>
                                     <DataGrid Grid.Row="1" ItemsSource="{Binding Pedidos}" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="False" SelectedItem="{Binding SelectedPedido, Mode=TwoWay}">
                                         <DataGrid.Columns>
@@ -140,10 +283,19 @@
                                 </Grid>
                             </GroupBox>
 
-                            <!-- Botones al final, centrados -->
                             <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10,0,0">
-                                <Button Content="Confirmar" Command="{Binding ConfirmSelectionCommand}" Style="{StaticResource PrimaryButton}"/>
-                                <Button Content="Limpiar" Command="{Binding ClearAllCommand}" Style="{StaticResource DangerButton}"/>
+                                <Button Command="{Binding ConfirmSelectionCommand}" Style="{StaticResource ModernButtonBase}">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock FontFamily="Segoe MDL2 Assets" Text="" Margin="0,0,6,0"/>
+                                        <TextBlock Text="Confirmar"/>
+                                    </StackPanel>
+                                </Button>
+                                <Button Command="{Binding ClearAllCommand}" Style="{StaticResource ModernButtonDanger}">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock FontFamily="Segoe MDL2 Assets" Text="" Margin="0,0,6,0"/>
+                                        <TextBlock Text="Limpiar"/>
+                                    </StackPanel>
+                                </Button>
                             </StackPanel>
                         </Grid>
                     </ScrollViewer>
