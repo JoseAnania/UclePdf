@@ -23,17 +23,46 @@
             <Setter Property="Width" Value="170"/>
             <Setter Property="Height" Value="100"/>
             <Setter Property="Margin" Value="8"/>
-            <Setter Property="Padding" Value="8"/>
-            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="Foreground" Value="White"/>
-            <Setter Property="Background" Value="#D32F2F"/>
-            <Setter Property="HorizontalContentAlignment" Value="Center"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Setter Property="ContentTemplate">
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Background" Value="#FF455A64"/>
+            <Setter Property="Template">
                 <Setter.Value>
-                    <DataTemplate>
-                        <TextBlock TextWrapping="Wrap" TextAlignment="Center" FontSize="13" FontWeight="Bold" Text="{Binding RelativeSource={RelativeSource AncestorType=Button}, Path=Content}"/>
-                    </DataTemplate>
+                    <ControlTemplate TargetType="Button">
+                        <Grid x:Name="Root" RenderTransformOrigin="0.5,0.5">
+                            <Grid.RenderTransform>
+                                <ScaleTransform ScaleX="1" ScaleY="1"/>
+                            </Grid.RenderTransform>
+                            <Border x:Name="Card" CornerRadius="14" Background="{TemplateBinding Background}" Padding="10" SnapsToDevicePixels="True">
+                                <Border.Effect>
+                                    <DropShadowEffect BlurRadius="8" ShadowDepth="0" Opacity="0.22"/>
+                                </Border.Effect>
+                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Card" Property="Background" Value="#FF546E7A"/>
+                                <Setter TargetName="Root" Property="RenderTransform">
+                                    <Setter.Value>
+                                        <ScaleTransform ScaleX="1.04" ScaleY="1.04"/>
+                                    </Setter.Value>
+                                </Setter>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Root" Property="RenderTransform">
+                                    <Setter.Value>
+                                        <ScaleTransform ScaleX="0.97" ScaleY="0.97"/>
+                                    </Setter.Value>
+                                </Setter>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.45"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
                 </Setter.Value>
             </Setter>
         </Style>
@@ -350,159 +379,215 @@
 
                             <!-- Botones de informes en grilla uniforme -->
                             <UniformGrid Columns="5" Rows="0" Margin="0,0,0,10">
-                                <Button Content="Hemograma" Command="{Binding OpenHemogramaCommand}">
+                                <Button Command="{Binding OpenHemogramaCommand}">
                                     <Button.Style>
                                         <Style TargetType="Button" BasedOn="{StaticResource ReportButtonBase}">
                                             <Style.Triggers>
                                                 <DataTrigger Binding="{Binding IsHemogramaLoaded}" Value="True">
-                                                    <Setter Property="Background" Value="#2E7D32"/>
+                                                    <Setter Property="Background" Value="#1565C0"/>
                                                 </DataTrigger>
                                             </Style.Triggers>
                                         </Style>
                                     </Button.Style>
+                                    <StackPanel>
+                                        <TextBlock Text="Hemograma" TextAlignment="Center" FontSize="13" FontWeight="SemiBold"/>
+                                        <TextBlock Text="" FontFamily="Segoe MDL2 Assets" FontSize="28" Margin="0,6,0,0" HorizontalAlignment="Center" Visibility="{Binding IsHemogramaLoaded, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                    </StackPanel>
                                 </Button>
-                                <Button Content="Química sanguínea" Command="{Binding OpenQuimicaCommand}">
+                                <Button Command="{Binding OpenQuimicaCommand}">
                                     <Button.Style>
                                         <Style TargetType="Button" BasedOn="{StaticResource ReportButtonBase}">
                                             <Style.Triggers>
                                                 <DataTrigger Binding="{Binding IsQuimicaLoaded}" Value="True">
-                                                    <Setter Property="Background" Value="#2E7D32"/>
+                                                    <Setter Property="Background" Value="#1565C0"/>
                                                 </DataTrigger>
                                             </Style.Triggers>
                                         </Style>
                                     </Button.Style>
+                                    <StackPanel>
+                                        <TextBlock Text="Química sanguínea" TextAlignment="Center" FontSize="13" FontWeight="SemiBold"/>
+                                        <TextBlock Text="" FontFamily="Segoe MDL2 Assets" FontSize="28" Margin="0,6,0,0" HorizontalAlignment="Center" Visibility="{Binding IsQuimicaLoaded, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                    </StackPanel>
                                 </Button>
-                                <Button Content="Orina completa" Command="{Binding OpenOrinaCommand}">
+                                <Button Command="{Binding OpenOrinaCommand}">
                                     <Button.Style>
                                         <Style TargetType="Button" BasedOn="{StaticResource ReportButtonBase}">
                                             <Style.Triggers>
                                                 <DataTrigger Binding="{Binding IsOrinaLoaded}" Value="True">
-                                                    <Setter Property="Background" Value="#2E7D32"/>
+                                                    <Setter Property="Background" Value="#1565C0"/>
                                                 </DataTrigger>
                                             </Style.Triggers>
                                         </Style>
                                     </Button.Style>
+                                    <StackPanel>
+                                        <TextBlock Text="Orina completa" TextAlignment="Center" FontSize="13" FontWeight="SemiBold"/>
+                                        <TextBlock Text="" FontFamily="Segoe MDL2 Assets" FontSize="28" Margin="0,6,0,0" HorizontalAlignment="Center" Visibility="{Binding IsOrinaLoaded, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                    </StackPanel>
                                 </Button>
-                                <Button Content="Hemostasia" Command="{Binding OpenHemostasiaCommand}">
+                                <Button Command="{Binding OpenHemostasiaCommand}">
                                     <Button.Style>
                                         <Style TargetType="Button" BasedOn="{StaticResource ReportButtonBase}">
                                             <Style.Triggers>
                                                 <DataTrigger Binding="{Binding IsHemostasiaLoaded}" Value="True">
-                                                    <Setter Property="Background" Value="#2E7D32"/>
+                                                    <Setter Property="Background" Value="#1565C0"/>
                                                 </DataTrigger>
                                             </Style.Triggers>
                                         </Style>
                                     </Button.Style>
+                                    <StackPanel>
+                                        <TextBlock Text="Hemostasia" TextAlignment="Center" FontSize="13" FontWeight="SemiBold"/>
+                                        <TextBlock Text="" FontFamily="Segoe MDL2 Assets" FontSize="28" Margin="0,6,0,0" HorizontalAlignment="Center" Visibility="{Binding IsHemostasiaLoaded, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                    </StackPanel>
                                 </Button>
-                                <Button Content="Frotis" Command="{Binding OpenFrotisCommand}">
+                                <Button Command="{Binding OpenFrotisCommand}">
                                     <Button.Style>
                                         <Style TargetType="Button" BasedOn="{StaticResource ReportButtonBase}">
                                             <Style.Triggers>
                                                 <DataTrigger Binding="{Binding IsFrotisLoaded}" Value="True">
-                                                    <Setter Property="Background" Value="#2E7D32"/>
+                                                    <Setter Property="Background" Value="#1565C0"/>
                                                 </DataTrigger>
                                             </Style.Triggers>
                                         </Style>
                                     </Button.Style>
+                                    <StackPanel>
+                                        <TextBlock Text="Frotis" TextAlignment="Center" FontSize="13" FontWeight="SemiBold"/>
+                                        <TextBlock Text="" FontFamily="Segoe MDL2 Assets" FontSize="28" Margin="0,6,0,0" HorizontalAlignment="Center" Visibility="{Binding IsFrotisLoaded, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                    </StackPanel>
                                 </Button>
-                                <Button Content="Coproparasitológico" Command="{Binding OpenCoproCommand}">
+                                <Button Command="{Binding OpenCoproCommand}">
                                     <Button.Style>
                                         <Style TargetType="Button" BasedOn="{StaticResource ReportButtonBase}">
                                             <Style.Triggers>
                                                 <DataTrigger Binding="{Binding IsCoproLoaded}" Value="True">
-                                                    <Setter Property="Background" Value="#2E7D32"/>
+                                                    <Setter Property="Background" Value="#1565C0"/>
                                                 </DataTrigger>
                                             </Style.Triggers>
                                         </Style>
                                     </Button.Style>
+                                    <StackPanel>
+                                        <TextBlock Text="Coproparasitológico" TextAlignment="Center" FontSize="13" FontWeight="SemiBold"/>
+                                        <TextBlock Text="" FontFamily="Segoe MDL2 Assets" FontSize="28" Margin="0,6,0,0" HorizontalAlignment="Center" Visibility="{Binding IsCoproLoaded, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                    </StackPanel>
                                 </Button>
-                                <Button Content="Ehrlichiosis canina (IC)" Command="{Binding OpenEhrlichiosisCommand}">
+                                <Button Command="{Binding OpenEhrlichiosisCommand}">
                                     <Button.Style>
                                         <Style TargetType="Button" BasedOn="{StaticResource ReportButtonBase}">
                                             <Style.Triggers>
                                                 <DataTrigger Binding="{Binding IsEhrlichiosisLoaded}" Value="True">
-                                                    <Setter Property="Background" Value="#2E7D32"/>
+                                                    <Setter Property="Background" Value="#1565C0"/>
                                                 </DataTrigger>
                                             </Style.Triggers>
                                         </Style>
                                     </Button.Style>
+                                    <StackPanel>
+                                        <TextBlock Text="Ehrlichiosis canina (IC)" TextAlignment="Center" FontSize="13" FontWeight="SemiBold"/>
+                                        <TextBlock Text="" FontFamily="Segoe MDL2 Assets" FontSize="28" Margin="0,6,0,0" HorizontalAlignment="Center" Visibility="{Binding IsEhrlichiosisLoaded, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                    </StackPanel>
                                 </Button>
-                                <Button Content="Raspaje de piel" Command="{Binding OpenRaspajeCommand}">
+                                <Button Command="{Binding OpenRaspajeCommand}">
                                     <Button.Style>
                                         <Style TargetType="Button" BasedOn="{StaticResource ReportButtonBase}">
                                             <Style.Triggers>
                                                 <DataTrigger Binding="{Binding IsRaspajeLoaded}" Value="True">
-                                                    <Setter Property="Background" Value="#2E7D32"/>
+                                                    <Setter Property="Background" Value="#1565C0"/>
                                                 </DataTrigger>
                                             </Style.Triggers>
                                         </Style>
                                     </Button.Style>
+                                    <StackPanel>
+                                        <TextBlock Text="Raspaje de piel" TextAlignment="Center" FontSize="13" FontWeight="SemiBold"/>
+                                        <TextBlock Text="" FontFamily="Segoe MDL2 Assets" FontSize="28" Margin="0,6,0,0" HorizontalAlignment="Center" Visibility="{Binding IsRaspajeLoaded, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                    </StackPanel>
                                 </Button>
-                                <Button Content="Recuento de reticulocitos" Command="{Binding OpenReticulocitosCommand}">
+                                <Button Command="{Binding OpenReticulocitosCommand}">
                                     <Button.Style>
                                         <Style TargetType="Button" BasedOn="{StaticResource ReportButtonBase}">
                                             <Style.Triggers>
                                                 <DataTrigger Binding="{Binding IsReticulocitosLoaded}" Value="True">
-                                                    <Setter Property="Background" Value="#2E7D32"/>
+                                                    <Setter Property="Background" Value="#1565C0"/>
                                                 </DataTrigger>
                                             </Style.Triggers>
                                         </Style>
                                     </Button.Style>
+                                    <StackPanel>
+                                        <TextBlock Text="Recuento de reticulocitos" TextAlignment="Center" FontSize="13" FontWeight="SemiBold"/>
+                                        <TextBlock Text="" FontFamily="Segoe MDL2 Assets" FontSize="28" Margin="0,6,0,0" HorizontalAlignment="Center" Visibility="{Binding IsReticulocitosLoaded, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                    </StackPanel>
                                 </Button>
-                                <Button Content="Relación proteinuria/creatininuria" Command="{Binding OpenProteinuriaCommand}">
+                                <Button Command="{Binding OpenProteinuriaCommand}">
                                     <Button.Style>
                                         <Style TargetType="Button" BasedOn="{StaticResource ReportButtonBase}">
                                             <Style.Triggers>
                                                 <DataTrigger Binding="{Binding IsProteinuriaLoaded}" Value="True">
-                                                    <Setter Property="Background" Value="#2E7D32"/>
+                                                    <Setter Property="Background" Value="#1565C0"/>
                                                 </DataTrigger>
                                             </Style.Triggers>
                                         </Style>
                                     </Button.Style>
+                                    <StackPanel>
+                                        <TextBlock Text="Relación proteinuria/creatininuria" TextAlignment="Center" FontSize="13" FontWeight="SemiBold"/>
+                                        <TextBlock Text="" FontFamily="Segoe MDL2 Assets" FontSize="28" Margin="0,6,0,0" HorizontalAlignment="Center" Visibility="{Binding IsProteinuriaLoaded, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                    </StackPanel>
                                 </Button>
-                                <Button Content="VIF/VILeF (IC)" Command="{Binding OpenVifVilefCommand}">
+                                <Button Command="{Binding OpenVifVilefCommand}">
                                     <Button.Style>
                                         <Style TargetType="Button" BasedOn="{StaticResource ReportButtonBase}">
                                             <Style.Triggers>
                                                 <DataTrigger Binding="{Binding IsVifVilefLoaded}" Value="True">
-                                                    <Setter Property="Background" Value="#2E7D32"/>
+                                                    <Setter Property="Background" Value="#1565C0"/>
                                                 </DataTrigger>
                                             </Style.Triggers>
                                         </Style>
                                     </Button.Style>
+                                    <StackPanel>
+                                        <TextBlock Text="VIF/VILeF (IC)" TextAlignment="Center" FontSize="13" FontWeight="SemiBold"/>
+                                        <TextBlock Text="" FontFamily="Segoe MDL2 Assets" FontSize="28" Margin="0,6,0,0" HorizontalAlignment="Center" Visibility="{Binding IsVifVilefLoaded, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                    </StackPanel>
                                 </Button>
-                                <Button Content="Ionograma" Command="{Binding OpenIonogramaCommand}">
+                                <Button Command="{Binding OpenIonogramaCommand}">
                                     <Button.Style>
                                         <Style TargetType="Button" BasedOn="{StaticResource ReportButtonBase}">
                                             <Style.Triggers>
                                                 <DataTrigger Binding="{Binding IsIonogramaLoaded}" Value="True">
-                                                    <Setter Property="Background" Value="#2E7D32"/>
+                                                    <Setter Property="Background" Value="#1565C0"/>
                                                 </DataTrigger>
                                             </Style.Triggers>
                                         </Style>
                                     </Button.Style>
+                                    <StackPanel>
+                                        <TextBlock Text="Ionograma" TextAlignment="Center" FontSize="13" FontWeight="SemiBold"/>
+                                        <TextBlock Text="" FontFamily="Segoe MDL2 Assets" FontSize="28" Margin="0,6,0,0" HorizontalAlignment="Center" Visibility="{Binding IsIonogramaLoaded, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                    </StackPanel>
                                 </Button>
-                                <Button Content="Estudio citológico" Command="{Binding OpenCitologicoCommand}">
+                                <Button Command="{Binding OpenCitologicoCommand}">
                                     <Button.Style>
                                         <Style TargetType="Button" BasedOn="{StaticResource ReportButtonBase}">
                                             <Style.Triggers>
                                                 <DataTrigger Binding="{Binding IsCitologicoLoaded}" Value="True">
-                                                    <Setter Property="Background" Value="#2E7D32"/>
+                                                    <Setter Property="Background" Value="#1565C0"/>
                                                 </DataTrigger>
                                             </Style.Triggers>
                                         </Style>
                                     </Button.Style>
+                                    <StackPanel>
+                                        <TextBlock Text="Estudio citológico" TextAlignment="Center" FontSize="13" FontWeight="SemiBold"/>
+                                        <TextBlock Text="" FontFamily="Segoe MDL2 Assets" FontSize="28" Margin="0,6,0,0" HorizontalAlignment="Center" Visibility="{Binding IsCitologicoLoaded, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                    </StackPanel>
                                 </Button>
-                                <Button Content="Líquido de punción" Command="{Binding OpenLiquidoPuncionCommand}">
+                                <Button Command="{Binding OpenLiquidoPuncionCommand}">
                                     <Button.Style>
                                         <Style TargetType="Button" BasedOn="{StaticResource ReportButtonBase}">
                                             <Style.Triggers>
                                                 <DataTrigger Binding="{Binding IsLiquidoPuncionLoaded}" Value="True">
-                                                    <Setter Property="Background" Value="#2E7D32"/>
+                                                    <Setter Property="Background" Value="#1565C0"/>
                                                 </DataTrigger>
                                             </Style.Triggers>
                                         </Style>
                                     </Button.Style>
+                                    <StackPanel>
+                                        <TextBlock Text="Líquido de punción" TextAlignment="Center" FontSize="13" FontWeight="SemiBold"/>
+                                        <TextBlock Text="" FontFamily="Segoe MDL2 Assets" FontSize="28" Margin="0,6,0,0" HorizontalAlignment="Center" Visibility="{Binding IsLiquidoPuncionLoaded, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                    </StackPanel>
                                 </Button>
                             </UniformGrid>
                         </StackPanel>
@@ -510,7 +595,12 @@
 
                     <!-- Botón inferior fijo -->
                     <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,8,0,0">
-                        <Button Content="Generar informe" Width="220" Height="48" Style="{StaticResource PrimaryButton}" Command="{Binding GenerateInformeCommand}"/>
+                        <Button Width="240" Height="56" Style="{StaticResource ModernButtonBase}" Command="{Binding GenerateInformeCommand}">
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                <TextBlock FontFamily="Segoe MDL2 Assets" Text="" FontSize="22" Margin="0,0,10,0"/>
+                                <TextBlock Text="Generar informe" FontWeight="Bold" FontSize="16"/>
+                            </StackPanel>
+                        </Button>
                     </StackPanel>
                 </Grid>
             </TabItem>
