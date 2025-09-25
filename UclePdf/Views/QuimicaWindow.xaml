@@ -3,27 +3,98 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="clr-namespace:UclePdf.ViewModels"
         xmlns:conv="clr-namespace:UclePdf.Converters"
-        Title="Quimica Sanguinea" Height="600" Width="900">
+        Title="Quimica Sanguinea" Height="600" Width="940">
     <Window.Resources>
         <conv:StringToDoubleInvariantConverter x:Key="StringToDouble"/>
-        <Style x:Key="RightAlignedTextBox" TargetType="TextBox">
+        <!-- Brushes / colores -->
+        <SolidColorBrush x:Key="CardBg" Color="#FFFFFFFF"/>
+        <SolidColorBrush x:Key="CardBorder" Color="#E0E6EC"/>
+        <SolidColorBrush x:Key="CardBorderHover" Color="#B5C6D6"/>
+        <SolidColorBrush x:Key="CalcBg" Color="#FFFBE7B2"/>
+        <SolidColorBrush x:Key="InputBorder" Color="#B8C4CE"/>
+        <SolidColorBrush x:Key="InputBorderHover" Color="#7FA6C5"/>
+        <SolidColorBrush x:Key="InputBorderFocus" Color="#1565C0"/>
+        <SolidColorBrush x:Key="ErrorBorder" Color="#D32F2F"/>
+
+        <!-- TextBox numerico -->
+        <Style x:Key="NumericInput" TargetType="TextBox">
+            <Setter Property="Width" Value="100"/>
+            <Setter Property="Padding" Value="6,4"/>
             <Setter Property="HorizontalContentAlignment" Value="Right"/>
+            <Setter Property="BorderBrush" Value="{StaticResource InputBorder}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TextBox">
+                        <Border x:Name="Bd" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="4">
+                            <ScrollViewer x:Name="PART_ContentHost"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="BorderBrush" Value="{StaticResource InputBorderHover}"/>
+                            </Trigger>
+                            <Trigger Property="IsKeyboardFocused" Value="True">
+                                <Setter TargetName="Bd" Property="BorderBrush" Value="{StaticResource InputBorderFocus}"/>
+                                <Setter TargetName="Bd" Property="BorderThickness" Value="2"/>
+                            </Trigger>
+                            <Trigger Property="Validation.HasError" Value="True">
+                                <Setter TargetName="Bd" Property="BorderBrush" Value="{StaticResource ErrorBorder}"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="Bd" Property="Opacity" Value="0.55"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
         </Style>
-        <Style x:Key="RightAlignedTextBlock" TargetType="TextBlock">
-            <Setter Property="HorizontalAlignment" Value="Right"/>
-        </Style>
-        <SolidColorBrush x:Key="CalcBg" Color="#FFFDE9A9"/>
-        <Style x:Key="CalcCellStyle" TargetType="DataGridCell">
+
+        <!-- Card style -->
+        <Style x:Key="QuimicaCard" TargetType="Border">
+            <Setter Property="Background" Value="{StaticResource CardBg}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource CardBorder}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="10"/>
+            <Setter Property="Padding" Value="10"/>
+            <Setter Property="Margin" Value="8"/>
+            <Setter Property="Width" Value="260"/>
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect BlurRadius="6" ShadowDepth="0" Opacity="0.08"/>
+                </Setter.Value>
+            </Setter>
             <Style.Triggers>
-                <DataTrigger Binding="{Binding EsCalculado}" Value="True">
-                    <Setter Property="Background" Value="{StaticResource CalcBg}"/>
-                </DataTrigger>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="BorderBrush" Value="{StaticResource CardBorderHover}"/>
+                    <Setter Property="Effect">
+                        <Setter.Value>
+                            <DropShadowEffect BlurRadius="12" ShadowDepth="0" Opacity="0.18"/>
+                        </Setter.Value>
+                    </Setter>
+                </Trigger>
             </Style.Triggers>
         </Style>
+
+        <Style x:Key="RefText" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="Foreground" Value="#666"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+        </Style>
+
+        <Style x:Key="CalcBadge" TargetType="Border">
+            <Setter Property="Background" Value="{StaticResource CalcBg}"/>
+            <Setter Property="CornerRadius" Value="4"/>
+            <Setter Property="Padding" Value="4,2"/>
+            <Setter Property="Margin" Value="6,0,0,0"/>
+        </Style>
     </Window.Resources>
+
     <Window.DataContext>
         <vm:QuimicaViewModel/>
     </Window.DataContext>
+
     <Grid Margin="10">
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
@@ -31,51 +102,85 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <DataGrid Grid.Row="0" ItemsSource="{Binding Items}" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False">
-            <DataGrid.Columns>
-                <DataGridTextColumn Header="Determinacion" Binding="{Binding Determinacion}" IsReadOnly="True" Width="*"/>
-                <DataGridTextColumn Header="Unidades" Binding="{Binding Unidades}" IsReadOnly="True" Width="120"/>
-
-                <DataGridTextColumn Header="Valor hallado" Width="140" CellStyle="{StaticResource CalcCellStyle}">
-                    <DataGridTextColumn.Binding>
-                        <Binding Path="Valor" Mode="TwoWay" UpdateSourceTrigger="PropertyChanged" Converter="{StaticResource StringToDouble}">
-                            <Binding.ValidationRules>
-                                <ExceptionValidationRule/>
-                            </Binding.ValidationRules>
-                        </Binding>
-                    </DataGridTextColumn.Binding>
-                    <DataGridTextColumn.ElementStyle>
-                        <Style TargetType="TextBlock" BasedOn="{StaticResource RightAlignedTextBlock}">
-                            <Setter Property="Text" Value="{Binding Valor, Converter={StaticResource StringToDouble}}"/>
-                        </Style>
-                    </DataGridTextColumn.ElementStyle>
-                    <DataGridTextColumn.EditingElementStyle>
-                        <Style TargetType="TextBox" BasedOn="{StaticResource RightAlignedTextBox}">
-                            <EventSetter Event="PreviewTextInput" Handler="OnPreviewTextInputNumeric"/>
-                            <EventSetter Event="PreviewKeyDown" Handler="OnPreviewKeyDownNumeric"/>
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding EsCalculado}" Value="True">
-                                    <Setter Property="IsReadOnly" Value="True"/>
-                                    <Setter Property="IsEnabled" Value="False"/>
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </DataGridTextColumn.EditingElementStyle>
-                </DataGridTextColumn>
-
-                <DataGridTextColumn Header="Valor ref caninos" Binding="{Binding RefCaninos}" IsReadOnly="True" Width="170"/>
-                <DataGridTextColumn Header="Valor ref felinos" Binding="{Binding RefFelinos}" IsReadOnly="True" Width="170"/>
-            </DataGrid.Columns>
-        </DataGrid>
+        <!-- Cards -->
+        <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto">
+            <ItemsControl ItemsSource="{Binding Items}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel IsItemsHost="True"/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border Style="{StaticResource QuimicaCard}">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <!-- Encabezado -->
+                                <DockPanel Grid.Row="0" LastChildFill="False" Margin="0,0,0,6">
+                                    <TextBlock Text="{Binding Determinacion}" FontWeight="SemiBold" FontSize="13" DockPanel.Dock="Left" TextWrapping="Wrap" Width="160"/>
+                                    <Border Background="#EEF4FA" CornerRadius="4" Padding="4,2" DockPanel.Dock="Right" Margin="6,0,0,0">
+                                        <TextBlock Text="{Binding Unidades}" FontSize="11" Foreground="#333"/>
+                                    </Border>
+                                </DockPanel>
+                                <!-- Valor -->
+                                <StackPanel Grid.Row="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,0,6">
+                                    <TextBlock Text="Valor:" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                    <TextBox Text="{Binding Valor, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource StringToDouble}}"
+                                             PreviewTextInput="OnPreviewTextInputNumeric" PreviewKeyDown="OnPreviewKeyDownNumeric">
+                                        <TextBox.Style>
+                                            <Style TargetType="TextBox" BasedOn="{StaticResource NumericInput}">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding EsCalculado}" Value="True">
+                                                        <Setter Property="IsReadOnly" Value="True"/>
+                                                        <Setter Property="IsEnabled" Value="False"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBox.Style>
+                                    </TextBox>
+                                    <Border>
+                                        <Border.Style>
+                                            <Style TargetType="Border" BasedOn="{StaticResource CalcBadge}">
+                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding EsCalculado}" Value="True">
+                                                        <Setter Property="Visibility" Value="Visible"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Border.Style>
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="Calc" FontWeight="Bold" Margin="0,0,4,0"/>
+                                            <TextBlock Text="{Binding Valor, Converter={StaticResource StringToDouble}}" FontWeight="SemiBold"/>
+                                        </StackPanel>
+                                    </Border>
+                                </StackPanel>
+                                <!-- Referencias -->
+                                <StackPanel Grid.Row="2" Orientation="Vertical">
+                                    <TextBlock Style="{StaticResource RefText}"><Run Text="Caninos: "/><Run Text="{Binding RefCaninos, Mode=OneWay}" FontWeight="SemiBold"/></TextBlock>
+                                    <TextBlock Style="{StaticResource RefText}" Margin="0,2,0,0"><Run Text="Felinos: "/><Run Text="{Binding RefFelinos, Mode=OneWay}" FontWeight="SemiBold"/></TextBlock>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
 
         <!-- Observaciones -->
-        <StackPanel Grid.Row="1" Orientation="Vertical" Margin="0,10,0,0">
-            <TextBlock Text="Observaciones" FontWeight="Bold"/>
-            <TextBox Text="{Binding Observaciones, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" AcceptsReturn="True" Height="80" TextWrapping="Wrap"/>
+        <StackPanel Grid.Row="1" Orientation="Vertical" Margin="0,12,0,0">
+            <TextBlock Text="Observaciones" FontWeight="Bold" Margin="0,0,0,4"/>
+            <Border CornerRadius="6" BorderBrush="#E0E6EC" BorderThickness="1" Background="White">
+                <TextBox BorderThickness="0" Padding="8,6" Text="{Binding Observaciones, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" AcceptsReturn="True" Height="80" TextWrapping="Wrap"/>
+            </Border>
         </StackPanel>
 
-        <!-- Botones al pie: primero Confirmar, luego Limpiar -->
-        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10,0,0">
+        <!-- Botones -->
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,14,0,0">
             <Button Width="170" Height="44" Style="{StaticResource ModernButtonBase}" Click="OnConfirmClick">
                 <StackPanel Orientation="Horizontal">
                     <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE10B;" FontSize="18" Margin="0,0,8,0"/>
