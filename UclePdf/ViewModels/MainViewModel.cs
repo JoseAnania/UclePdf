@@ -241,7 +241,10 @@ public class MainViewModel : ObservableObject
             var items = await Task.Run(() => _pedidosReader.Leer(PathA!, FilterFromDate));
             _allPedidos = items;
             ApplyFilter();
-            MessageBox.Show($"Pedidos cargados: {_allPedidos.Count}", "UCLE", MessageBoxButton.OK, MessageBoxImage.Information);
+            if (FilterFromDate == null)
+                MessageBox.Show($"Pedidos cargados: {_allPedidos.Count}. Mostrando los primeros 50 (aplique fecha o filtros para ver mas).", "UCLE", MessageBoxButton.OK, MessageBoxImage.Information);
+            else
+                MessageBox.Show($"Pedidos cargados: {_allPedidos.Count}", "UCLE", MessageBoxButton.OK, MessageBoxImage.Information);
         }
         catch (Exception ex)
         {
@@ -270,6 +273,10 @@ public class MainViewModel : ObservableObject
             src = src.Where(p => (p.NombrePaciente ?? string.Empty).Contains(FilterPaciente, StringComparison.OrdinalIgnoreCase));
 
         src = src.OrderByDescending(p => p.MarcaTemporal ?? DateTime.MinValue);
+
+        // Limite por defecto: si no hay fecha seleccionada se muestran solo los primeros 50 (vista inicial mas liviana)
+        if (FilterFromDate == null)
+            src = src.Take(50);
 
         Pedidos.Clear();
         foreach (var p in src)

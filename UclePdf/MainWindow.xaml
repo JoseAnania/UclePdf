@@ -27,7 +27,7 @@
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="FontSize" Value="14"/>
-            <Setter Property="Background" Value="#FF455A64"/>
+            <Setter Property="Background" Value="#90A4AE"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
@@ -44,7 +44,7 @@
                         </Grid>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Card" Property="Background" Value="#FF546E7A"/>
+                                <Setter TargetName="Card" Property="Background" Value="#B0BEC5"/>
                                 <Setter TargetName="Root" Property="RenderTransform">
                                     <Setter.Value>
                                         <ScaleTransform ScaleX="1.04" ScaleY="1.04"/>
@@ -384,7 +384,7 @@
                                         <Style TargetType="Button" BasedOn="{StaticResource ReportButtonBase}">
                                             <Style.Triggers>
                                                 <DataTrigger Binding="{Binding IsHemogramaLoaded}" Value="True">
-                                                    <Setter Property="Background" Value="#1565C0"/>
+                                                    <Setter Property="Background" Value="#009688"/>
                                                 </DataTrigger>
                                             </Style.Triggers>
                                         </Style>
@@ -399,7 +399,7 @@
                                         <Style TargetType="Button" BasedOn="{StaticResource ReportButtonBase}">
                                             <Style.Triggers>
                                                 <DataTrigger Binding="{Binding IsQuimicaLoaded}" Value="True">
-                                                    <Setter Property="Background" Value="#1565C0"/>
+                                                    <Setter Property="Background" Value="#009688"/>
                                                 </DataTrigger>
                                             </Style.Triggers>
                                         </Style>
@@ -414,7 +414,7 @@
                                         <Style TargetType="Button" BasedOn="{StaticResource ReportButtonBase}">
                                             <Style.Triggers>
                                                 <DataTrigger Binding="{Binding IsOrinaLoaded}" Value="True">
-                                                    <Setter Property="Background" Value="#1565C0"/>
+                                                    <Setter Property="Background" Value="#009688"/>
                                                 </DataTrigger>
                                             </Style.Triggers>
                                         </Style>
@@ -429,7 +429,7 @@
                                         <Style TargetType="Button" BasedOn="{StaticResource ReportButtonBase}">
                                             <Style.Triggers>
                                                 <DataTrigger Binding="{Binding IsHemostasiaLoaded}" Value="True">
-                                                    <Setter Property="Background" Value="#1565C0"/>
+                                                    <Setter Property="Background" Value="#009688"/>
                                                 </DataTrigger>
                                             </Style.Triggers>
                                         </Style>
@@ -444,7 +444,7 @@
                                         <Style TargetType="Button" BasedOn="{StaticResource ReportButtonBase}">
                                             <Style.Triggers>
                                                 <DataTrigger Binding="{Binding IsFrotisLoaded}" Value="True">
-                                                    <Setter Property="Background" Value="#1565C0"/>
+                                                    <Setter Property="Background" Value="#009688"/>
                                                 </DataTrigger>
                                             </Style.Triggers>
                                         </Style>
@@ -459,7 +459,7 @@
                                         <Style TargetType="Button" BasedOn="{StaticResource ReportButtonBase}">
                                             <Style.Triggers>
                                                 <DataTrigger Binding="{Binding IsCoproLoaded}" Value="True">
-                                                    <Setter Property="Background" Value="#1565C0"/>
+                                                    <Setter Property="Background" Value="#009688"/>
                                                 </DataTrigger>
                                             </Style.Triggers>
                                         </Style>
@@ -474,7 +474,7 @@
                                         <Style TargetType="Button" BasedOn="{StaticResource ReportButtonBase}">
                                             <Style.Triggers>
                                                 <DataTrigger Binding="{Binding IsEhrlichiosisLoaded}" Value="True">
-                                                    <Setter Property="Background" Value="#1565C0"/>
+                                                    <Setter Property="Background" Value="#009688"/>
                                                 </DataTrigger>
                                             </Style.Triggers>
                                         </Style>
@@ -489,7 +489,7 @@
                                         <Style TargetType="Button" BasedOn="{StaticResource ReportButtonBase}">
                                             <Style.Triggers>
                                                 <DataTrigger Binding="{Binding IsRaspajeLoaded}" Value="True">
-                                                    <Setter Property="Background" Value="#1565C0"/>
+                                                    <Setter Property="Background" Value="#009688"/>
                                                 </DataTrigger>
                                             </Style.Triggers>
                                         </Style>
@@ -504,7 +504,7 @@
                                         <Style TargetType="Button" BasedOn="{StaticResource ReportButtonBase}">
                                             <Style.Triggers>
                                                 <DataTrigger Binding="{Binding IsReticulocitosLoaded}" Value="True">
-                                                    <Setter Property="Background" Value="#1565C0"/>
+                                                    <Setter Property="Background" Value="#009688"/>
                                                 </DataTrigger>
                                             </Style.Triggers>
                                         </Style>
@@ -519,7 +519,7 @@
                                         <Style TargetType="Button" BasedOn="{StaticResource ReportButtonBase}">
                                             <Style.Triggers>
                                                 <DataTrigger Binding="{Binding IsProteinuriaLoaded}" Value="True">
-                                                    <Setter Property="Background" Value="#1565C0"/>
+                                                    <Setter Property="Background" Value="#009688"/>
                                                 </DataTrigger>
                                             </Style.Triggers>
                                         </Style>
@@ -534,7 +534,7 @@
                                         <Style TargetType="Button" BasedOn="{StaticResource ReportButtonBase}">
                                             <Style.Triggers>
                                                 <DataTrigger Binding="{Binding IsVifVilefLoaded}" Value="True">
-                                                    <Setter Property="Background" Value="#1565C0"/>
+                                                    <Setter Property="Background" Value="#009688"/>
                                                 </DataTrigger>
                                             </Style.Triggers>
                                         </Style>
@@ -549,7 +549,7 @@
                                         <Style TargetType="Button" BasedOn="{StaticResource ReportButtonBase}">
                                             <Style.Triggers>
                                                 <DataTrigger Binding="{Binding IsIonogramaLoaded}" Value="True">
-                                                    <Setter Property="Background" Value="#1565C0"/>
+                                                    <Setter Property="Background" Value="#009688"/>
                                                 </DataTrigger>
                                             </Style.Triggers>
                                         </Style>
@@ -564,7 +564,7 @@
                                         <Style TargetType="Button" BasedOn="{StaticResource ReportButtonBase}">
                                             <Style.Triggers>
                                                 <DataTrigger Binding="{Binding IsCitologicoLoaded}" Value="True">
-                                                    <Setter Property="Background" Value="#1565C0"/>
+                                                    <Setter Property="Background" Value="#009688"/>
                                                 </DataTrigger>
                                             </Style.Triggers>
                                         </Style>
@@ -579,7 +579,7 @@
                                         <Style TargetType="Button" BasedOn="{StaticResource ReportButtonBase}">
                                             <Style.Triggers>
                                                 <DataTrigger Binding="{Binding IsLiquidoPuncionLoaded}" Value="True">
-                                                    <Setter Property="Background" Value="#1565C0"/>
+                                                    <Setter Property="Background" Value="#009688"/>
                                                 </DataTrigger>
                                             </Style.Triggers>
                                         </Style>
