@@ -516,15 +516,8 @@ public class MainViewModel : ObservableObject
     {
         try
         {
-            byte[]? logoBytes = null;
-            var logoPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "logo_ucle.png");
-            if (File.Exists(logoPath))
-                logoBytes = File.ReadAllBytes(logoPath);
-
-            byte[]? signatureBytes = null;
-            var sigPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "signature_rocio.png");
-            if (File.Exists(sigPath))
-                signatureBytes = File.ReadAllBytes(sigPath);
+            byte[]? logoBytes = LoadEmbedded("UclePdf.Assets.logo_ucle.png");
+            byte[]? signatureBytes = LoadEmbedded("UclePdf.Assets.signature_rocio.png");
 
             HemogramaData? hemoData = null;
             if (IsHemogramaLoaded && _hemogramas.TryGetValue(ConfirmedPedido!, out var hvm))
@@ -696,6 +689,20 @@ public class MainViewModel : ObservableObject
         {
             MessageBox.Show($"Error generando PDF: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
         }
+    }
+
+    private static byte[]? LoadEmbedded(string resourceName)
+    {
+        try
+        {
+            var asm = typeof(MainViewModel).Assembly;
+            using var s = asm.GetManifestResourceStream(resourceName);
+            if (s == null) return null;
+            using var ms = new MemoryStream();
+            s.CopyTo(ms);
+            return ms.ToArray();
+        }
+        catch { return null; }
     }
 
     private void ClearAll()
