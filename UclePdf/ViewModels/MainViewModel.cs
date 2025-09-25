@@ -242,9 +242,14 @@ public class MainViewModel : ObservableObject
             _allPedidos = items;
             ApplyFilter();
             if (FilterFromDate == null)
-                MessageBox.Show($"Pedidos cargados: {_allPedidos.Count}. Mostrando los primeros 50 (aplique fecha o filtros para ver mas).", "UCLE", MessageBoxButton.OK, MessageBoxImage.Information);
+            {
+                var mostrados = Pedidos.Count;
+                MessageBox.Show($"Pedidos cargados: {mostrados} (de un total de {_allPedidos.Count}; aplique fecha o filtros para ver todos).", "UCLE", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
             else
+            {
                 MessageBox.Show($"Pedidos cargados: {_allPedidos.Count}", "UCLE", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
         }
         catch (Exception ex)
         {
