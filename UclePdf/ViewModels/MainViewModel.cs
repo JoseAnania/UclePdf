@@ -546,7 +546,10 @@ public class MainViewModel : ObservableObject
             QuimicaData? quimicaData = null;
             if (IsQuimicaLoaded && _quimicas.TryGetValue(ConfirmedPedido!, out var qvm))
             {
+                // Obtener el valor de triglicéridos
+                var trigVal = qvm.Items.FirstOrDefault(i => i.Determinacion.ToLower().Contains("trigliceridos"))?.Valor;
                 var rowsQ = qvm.Items.Where(i => i.Valor.HasValue)
+                    .Where(i => !(trigVal.HasValue && trigVal.Value >= 400 && i.Determinacion.ToLower().Contains("colesterol ldl")))
                     .Select(i => new QuimicaRow(
                         i.Determinacion,
                         i.Valor,
