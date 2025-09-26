@@ -295,7 +295,15 @@
                                         <RowDefinition Height="*"/>
                                     </Grid.RowDefinitions>
                                     <TextBlock Text="Pedidos" FontWeight="Bold"/>
-                                    <DataGrid Grid.Row="1" ItemsSource="{Binding Pedidos}" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="False" SelectedItem="{Binding SelectedPedido, Mode=TwoWay}">
+                                    <DataGrid Grid.Row="1"
+                                              ItemsSource="{Binding Pedidos}"
+                                              AutoGenerateColumns="False"
+                                              CanUserAddRows="False"
+                                              CanUserDeleteRows="False"
+                                              IsReadOnly="False"
+                                              SelectedItem="{Binding SelectedPedido, Mode=TwoWay}"
+                                              ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                              Height="400">
                                         <DataGrid.Columns>
                                             <DataGridTextColumn Header="Marca temporal" Binding="{Binding MarcaTemporal, StringFormat=dd/MM/yyyy HH:mm}" IsReadOnly="True"/>
                                             <DataGridTextColumn Header="Correo" Binding="{Binding CorreoElectronico}" IsReadOnly="True"/>

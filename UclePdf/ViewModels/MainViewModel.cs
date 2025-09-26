@@ -241,14 +241,9 @@ public class MainViewModel : ObservableObject
             var items = await Task.Run(() => _pedidosReader.Leer(PathA!, FilterFromDate));
             _allPedidos = items;
             ApplyFilter();
-            if (FilterFromDate == null)
+            if (_allPedidos.Count == 0)
             {
-                var mostrados = Pedidos.Count;
-                MessageBox.Show($"Pedidos cargados: {mostrados} (de un total de {_allPedidos.Count}; aplique fecha o filtros para ver todos).", "UCLE", MessageBoxButton.OK, MessageBoxImage.Information);
-            }
-            else
-            {
-                MessageBox.Show($"Pedidos cargados: {_allPedidos.Count}", "UCLE", MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show("No se encontraron resultados.", "UCLE", MessageBoxButton.OK, MessageBoxImage.Information);
             }
         }
         catch (Exception ex)
