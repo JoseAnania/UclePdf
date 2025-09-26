@@ -755,6 +755,24 @@ public class PdfReportService : IPdfReportService
                     });
                 }
             });
+            // Footer alineado a la derecha con conteo de páginas (formato correcto QuestPDF)
+            page.Footer()
+                .AlignRight()
+                .Text(text =>
+                {
+                    text.Span("Página ")
+                        .FontSize(8)
+                        .FontColor(Colors.Grey.Darken2);
+                    text.CurrentPageNumber()
+                        .FontSize(8)
+                        .FontColor(Colors.Grey.Darken2);
+                    text.Span(" de ")
+                        .FontSize(8)
+                        .FontColor(Colors.Grey.Darken2);
+                    text.TotalPages()
+                        .FontSize(8)
+                        .FontColor(Colors.Grey.Darken2);
+                });
         });
     }
 
