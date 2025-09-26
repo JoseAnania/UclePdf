@@ -3,6 +3,7 @@
   <ItemGroup>
     <None Remove="Assets\logo_ucle.png" />
     <None Remove="Assets\signature_rocio.png" />
+    <None Include="ico.ico" />
   </ItemGroup>
 
   <ItemGroup>
@@ -33,6 +34,7 @@
     <AssemblyVersion>1.0.0.0</AssemblyVersion>
     <FileVersion>1.0.0.0</FileVersion>
     <Version>1.0.0</Version>
+    <ApplicationIcon>ico.ico</ApplicationIcon>
   </PropertyGroup>
 
 </Project>
