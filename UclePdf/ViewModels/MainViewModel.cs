@@ -16,8 +16,18 @@ public class MainViewModel : ObservableObject
     private readonly IPedidosReader _pedidosReader;
     private readonly IPdfReportService _pdfService = new PdfReportService();
 
-    private const string NoneOption = "Sin selección";
+    private const string NoneOption = "Sin selección"; // (no usado aquí pero mantenido)
+    private const string BioquimicoPlaceholder = "Seleccione";
     private const string DefaultBioquimico = "Rodríguez Méndez Rocío MP 6275";
+    private const string BioquimicoAlt = "Magallanes Aldana MP 6207";
+
+    // Opciones (incluye placeholder primero)
+    public IReadOnlyList<string> BioquimicosOpciones { get; } = new[]
+    {
+        BioquimicoPlaceholder,
+        DefaultBioquimico,
+        BioquimicoAlt
+    };
 
     public MainViewModel()
         : this(new PedidosReader()) { }
@@ -25,7 +35,7 @@ public class MainViewModel : ObservableObject
     public MainViewModel(IPedidosReader pedidosReader)
     {
         _pedidosReader = pedidosReader;
-        _bioquimico = DefaultBioquimico;
+        _bioquimico = BioquimicoPlaceholder; // por defecto "Seleccione"
     }
 
     private bool _isBusy;
@@ -685,6 +695,7 @@ public class MainViewModel : ObservableObject
                     liquidoPuncionData = new LiquidoPuncionData(textoRows, bioqRows, lpvm.Observaciones);
             }
 
+            var bioq = Bioquimico == BioquimicoPlaceholder ? string.Empty : (Bioquimico ?? string.Empty);
             var pdfBytes = _pdfService.GenerateInformePdfBytes(logoBytes, new InformeHeaderData(
                 HeaderFecha,
                 HeaderPaciente,
@@ -692,7 +703,7 @@ public class MainViewModel : ObservableObject
                 HeaderPropietario,
                 HeaderVeterinario,
                 HeaderSucursal,
-                Bioquimico ?? string.Empty), hemoData, quimicaData, orinaData, hemostasiaData, frotisData, coproData, ehrlichiosisData, raspajeData, reticulocitosData, proteinuriaData, vifvilefData, ionogramaData, citologicoData, liquidoPuncionData, signatureBytes);
+                bioq), hemoData, quimicaData, orinaData, hemostasiaData, frotisData, coproData, ehrlichiosisData, raspajeData, reticulocitosData, proteinuriaData, vifvilefData, ionogramaData, citologicoData, liquidoPuncionData, signatureBytes);
             var preview = new UclePdf.Views.PreviewPdfWindow(pdfBytes) { Owner = Application.Current?.MainWindow };
             preview.ShowDialog();
         }
@@ -748,6 +759,6 @@ public class MainViewModel : ObservableObject
         FilterVeterinario = null;
         FilterPropietario = null;
         FilterPaciente = null;
-        Bioquimico = DefaultBioquimico;
+        Bioquimico = BioquimicoPlaceholder;
     }
 }
