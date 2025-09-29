@@ -2,12 +2,14 @@
 
   <ItemGroup>
     <None Remove="Assets\logo_ucle.png" />
+    <None Remove="Assets\signature_aldana.png" />
     <None Remove="Assets\signature_rocio.png" />
     <None Include="ico.ico" />
   </ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Include="Assets\logo_ucle.png" LogicalName="UclePdf.Assets.logo_ucle.png" />
+    <EmbeddedResource Include="Assets\signature_aldana.png" />
     <EmbeddedResource Include="Assets\signature_rocio.png" LogicalName="UclePdf.Assets.signature_rocio.png" />
   </ItemGroup>
 
