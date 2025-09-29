@@ -531,10 +531,21 @@ public class MainViewModel : ObservableObject
 
     private void GenerateInforme()
     {
+        // Validación selección de bioquímico
+        if (Bioquimico == BioquimicoPlaceholder)
+        {
+            MessageBox.Show("Debe seleccionar un bioquímico antes de generar el informe.", "Atención", MessageBoxButton.OK, MessageBoxImage.Warning);
+            return;
+        }
         try
         {
             byte[]? logoBytes = LoadEmbedded("UclePdf.Assets.logo_ucle.png");
-            byte[]? signatureBytes = LoadEmbedded("UclePdf.Assets.signature_rocio.png");
+
+            // Firma dinámica según bioquímico seleccionado
+            var signatureResource = Bioquimico == BioquimicoAlt
+                ? "UclePdf.Assets.signature_aldana.png"
+                : "UclePdf.Assets.signature_rocio.png";
+            byte[]? signatureBytes = LoadEmbedded(signatureResource);
 
             HemogramaData? hemoData = null;
             if (IsHemogramaLoaded && _hemogramas.TryGetValue(ConfirmedPedido!, out var hvm))
