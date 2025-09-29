@@ -20,40 +20,28 @@ public record InformeHeaderData(
 
 public record HemogramaRow(string Determinacion, double? Relativo, double? Absoluto, string Unidades, string RefCaninos, string RefFelinos);
 public record HemogramaData(List<HemogramaRow> Rows, string? Observaciones, string? Especie);
-
-// Nueva estructura para Química sanguínea
 public record QuimicaRow(string Determinacion, double? Valor, string Unidades, string RefCaninos, string RefFelinos);
 public record QuimicaData(List<QuimicaRow> Rows, string? Observaciones, string? Especie);
-// Nueva estructura para Orina completa
 public record OrinaRow(string Seccion, string Determinacion, string? Valor, string RefCaninos, string RefFelinos, bool TopSeparator);
 public record OrinaData(List<OrinaRow> Rows, string? Observaciones, string? Especie);
-// Nueva estructura Hemostasia (referencias no diferenciadas por especie en el modelo actual)
 public record HemostasiaRow(string Determinacion, double? Valor, string Referencia);
 public record HemostasiaData(List<HemostasiaRow> Rows, string? Observaciones);
-// Nuevas estructuras Frotis y Copro
 public record FrotisData(string? Resultado);
 public record CoproRow(string Determinacion, string? Resultado);
 public record CoproData(List<CoproRow> Rows, string? Observaciones);
-// Nuevos registros Ehrlichiosis y Raspaje
 public record EhrlichiosisRow(string Tecnica, string? Resultado);
 public record EhrlichiosisData(List<EhrlichiosisRow> Rows, string? Observaciones);
 public record RaspajeRow(string Determinacion, string? Resultado);
 public record RaspajeData(List<RaspajeRow> Rows, string? Observaciones);
-// Nuevos registros Reticulocitos
 public record ReticulocitosRow(string Determinacion, double? Valor, string? Referencia);
 public record ReticulocitosData(List<ReticulocitosRow> Rows, string? Observaciones);
-// NUEVO: Proteinuria / Creatininuria
 public record ProteinuriaRow(string Determinacion, double? Valor, string? Referencia);
 public record ProteinuriaData(List<ProteinuriaRow> Rows, string? Observaciones, string ReferenciasBloque);
-// Nuevo: VIF / VILEF
 public record VifVilefData(string? VifResultado, string? VilefResultado, string? Observaciones);
-// Nuevo: Ionograma
 public record IonogramaRow(string Determinacion, double? Valor, string RefCanino, string RefFelino);
 public record IonogramaData(List<IonogramaRow> Rows, string? Observaciones, string? Especie);
-// Nuevo: Estudio Citológico
 public record CitologicoRow(string Determinacion, string? Resultado);
 public record CitologicoData(List<CitologicoRow> Rows, string? Observaciones);
-// Nuevas estructuras para Líquido de Punción
 public record LiquidoPuncionTextoRow(string Determinacion, string? Resultado);
 public record LiquidoPuncionBioqRow(string Determinacion, double? Valor, string Unidades);
 public record LiquidoPuncionData(List<LiquidoPuncionTextoRow> TextoRows, List<LiquidoPuncionBioqRow> BioqRows, string? Observaciones);
@@ -73,6 +61,11 @@ public interface IPdfReportService
 
 public class PdfReportService : IPdfReportService
 {
+    // Margen superior reducido para subir el logo
+    private const float TopMargin = 10f; // antes 25
+    private const float SideMargin = 25f;
+    private const float BottomMargin = 25f;
+
     private static string Format(double? v) => v.HasValue ? v.Value.ToString("0.##", CultureInfo.InvariantCulture) : "";
 
     private void ComposeSimple(IDocumentContainer container, byte[]? headerImageBytes)
@@ -80,11 +73,12 @@ public class PdfReportService : IPdfReportService
         container.Page(page =>
         {
             page.Size(PageSizes.A4);
-            page.Margin(25);
-            // Sin header repetitivo
+            // No existe sobrecarga con 4 parámetros: usamos margen general y luego ajustamos top/bottom
+            page.Margin(SideMargin);
+            page.MarginTop(TopMargin);
+            page.MarginBottom(BottomMargin);
             page.Content().Column(col =>
             {
-                // Logo solo al inicio (primera página) al estar como primer item del contenido.
                 col.Item().Element(e => RenderLogoOnce(e, headerImageBytes));
                 col.Item().PaddingTop(15).Text("(Contenido pendiente)");
             });
@@ -100,10 +94,12 @@ public class PdfReportService : IPdfReportService
         container.Page(page =>
         {
             page.Size(PageSizes.A4);
-            page.Margin(25);
+            page.Margin(SideMargin);
+            page.MarginTop(TopMargin);
+            page.MarginBottom(BottomMargin);
             page.Content().Column(col =>
             {
-                // Logo sólo en primera página
+                // Logo (centrado) sólo en primera página
                 col.Item().Element(e => RenderLogoOnce(e, headerImageBytes));
 
                 // Card datos
@@ -142,12 +138,11 @@ public class PdfReportService : IPdfReportService
                     {
                         table.ColumnsDefinition(c =>
                         {
-                            c.RelativeColumn(1.0f); // Determinación (más angosta)
-                            c.ConstantColumn(55);   // Rel (más ancha)
-                            c.ConstantColumn(55);   // Abs (más ancha)
-                            c.RelativeColumn(1.2f); // Referencia (más ancha y alineada a la derecha)
+                            c.RelativeColumn(1.0f);
+                            c.ConstantColumn(55);
+                            c.ConstantColumn(55);
+                            c.RelativeColumn(1.2f);
                         });
-
                         void HeaderCell(string t, bool alignRight = false)
                         {
                             var cell = table.Cell();
@@ -160,7 +155,6 @@ public class PdfReportService : IPdfReportService
                         HeaderCell("Rel");
                         HeaderCell("Abs");
                         HeaderCell(tituloRef, true);
-
                         foreach (var r in hemograma.Rows)
                         {
                             var refValueBase = esCanino ? r.RefCaninos : esFelino ? r.RefFelinos : r.RefCaninos;
@@ -171,39 +165,24 @@ public class PdfReportService : IPdfReportService
                             table.Cell().Element(c => c.Padding(3).Text(refValue).FontSize(8f).FontColor(Colors.Grey.Darken2).AlignRight());
                         }
                     });
-
                     if (!string.IsNullOrWhiteSpace(hemograma.Observaciones))
-                    {
-                        col.Item().PaddingTop(6).Element(box =>
-                        {
-                            box.Background(Colors.Grey.Lighten4).Padding(6).Text("Obs: " + hemograma.Observaciones).FontSize(8f);
-                        });
-                    }
-
+                        col.Item().PaddingTop(6).Element(box => box.Background(Colors.Grey.Lighten4).Padding(6).Text("Obs: " + hemograma.Observaciones).FontSize(8f));
                     if (quimica != null)
                         col.Item().PaddingTop(14).Element(e => e.Height(1).Background(Colors.Grey.Lighten2));
                 }
 
-                // Química
+                // Química sanguínea
                 if (quimica != null)
                 {
                     var especieNormQ = (quimica.Especie ?? "").Trim().ToLowerInvariant();
                     bool esCaninoQ = especieNormQ.Contains("can");
                     bool esFelinoQ = especieNormQ.Contains("fel");
                     var tituloRefQ = esCaninoQ ? "Valores de Referencia (Canino)" : esFelinoQ ? "Valores de Referencia (Felino)" : "Valores de Referencia";
-
                     col.Item().PaddingTop(10).Element(e => e.AlignCenter().Text(t => t.Span("QUÍMICA SANGUÍNEA").FontSize(10).SemiBold()));
                     col.Item().Element(e => e.Height(1).Background(Colors.Grey.Lighten2));
-
                     col.Item().Table(table =>
                     {
-                        table.ColumnsDefinition(c =>
-                        {
-                            c.RelativeColumn(1.0f); // Determinación (igual que Hemograma)
-                            c.ConstantColumn(50);   // Valor (más pegada)
-                            c.RelativeColumn(1.2f); // Referencia (alineada a la derecha)
-                        });
-
+                        table.ColumnsDefinition(c => { c.RelativeColumn(1.0f); c.ConstantColumn(50); c.RelativeColumn(1.2f); });
                         void HeaderCellQ(string t, bool alignRight = false)
                         {
                             var cell = table.Cell();
@@ -215,7 +194,6 @@ public class PdfReportService : IPdfReportService
                         HeaderCellQ("Determinación");
                         HeaderCellQ("Valor");
                         HeaderCellQ(tituloRefQ, true);
-
                         foreach (var r in quimica.Rows)
                         {
                             var refValueBase = esCaninoQ ? r.RefCaninos : esFelinoQ ? r.RefFelinos : r.RefCaninos;
@@ -225,35 +203,20 @@ public class PdfReportService : IPdfReportService
                             table.Cell().Element(c => c.Padding(3).Text(refValue).FontSize(8f).FontColor(Colors.Grey.Darken2).AlignRight());
                         }
                     });
-
                     if (!string.IsNullOrWhiteSpace(quimica.Observaciones))
-                    {
-                        col.Item().PaddingTop(6).Element(box =>
-                        {
-                            box.Background(Colors.Grey.Lighten4).Padding(6).Text("Obs: " + quimica.Observaciones).FontSize(8f);
-                        });
-                    }
+                        col.Item().PaddingTop(6).Element(box => box.Background(Colors.Grey.Lighten4).Padding(6).Text("Obs: " + quimica.Observaciones).FontSize(8f));
                 }
 
                 // Hemostasia
                 if (hemostasia != null)
                 {
-                    // Separador si había otra sección antes
                     if (hemograma != null || quimica != null)
                         col.Item().PaddingTop(14).Element(e => e.Height(1).Background(Colors.Grey.Lighten2));
-
                     col.Item().PaddingTop(10).Element(e => e.AlignCenter().Text(t => t.Span("HEMOSTASIA").FontSize(10).SemiBold()));
                     col.Item().Element(e => e.Height(1).Background(Colors.Grey.Lighten2));
-
                     col.Item().Table(table =>
                     {
-                        table.ColumnsDefinition(c =>
-                        {
-                            c.RelativeColumn(1.4f); // Determinación
-                            c.ConstantColumn(60);   // Valor
-                            c.RelativeColumn(1.2f); // Referencia (más ancha y alineada a la derecha)
-                        });
-
+                        table.ColumnsDefinition(c => { c.RelativeColumn(1.4f); c.ConstantColumn(60); c.RelativeColumn(1.2f); });
                         void HeaderCellH(string t, bool alignRight = false)
                         {
                             var cell = table.Cell();
@@ -265,7 +228,6 @@ public class PdfReportService : IPdfReportService
                         HeaderCellH("Determinación");
                         HeaderCellH("Valor");
                         HeaderCellH("Valores de Referencia", true);
-
                         foreach (var r in hemostasia.Rows)
                         {
                             table.Cell().Element(c => c.Padding(3).Text(r.Determinacion).FontSize(8.2f));
@@ -273,14 +235,8 @@ public class PdfReportService : IPdfReportService
                             table.Cell().Element(c => c.Padding(3).Text(r.Referencia).FontSize(8f).FontColor(Colors.Grey.Darken2).AlignRight());
                         }
                     });
-
                     if (!string.IsNullOrWhiteSpace(hemostasia.Observaciones))
-                    {
-                        col.Item().PaddingTop(6).Element(box =>
-                        {
-                            box.Background(Colors.Grey.Lighten4).Padding(6).Text("Obs: " + hemostasia.Observaciones).FontSize(8f);
-                        });
-                    }
+                        col.Item().PaddingTop(6).Element(box => box.Background(Colors.Grey.Lighten4).Padding(6).Text("Obs: " + hemostasia.Observaciones).FontSize(8f));
                 }
 
                 // Orina Completa
@@ -290,28 +246,17 @@ public class PdfReportService : IPdfReportService
                     bool esCaninoO = especieNormO.Contains("can");
                     bool esFelinoO = especieNormO.Contains("fel");
                     var tituloRefO = esCaninoO ? "Valores de Referencia (Canino)" : esFelinoO ? "Valores de Referencia (Felino)" : "Valores de Referencia";
-
-                    // Separador si había otra sección antes
                     if (hemograma != null || quimica != null || hemostasia != null)
                         col.Item().PaddingTop(14).Element(e => e.Height(1).Background(Colors.Grey.Lighten2));
-
                     col.Item().PaddingTop(10).Element(e => e.AlignCenter().Text(t => t.Span("ORINA COMPLETA").FontSize(10).SemiBold()));
                     col.Item().Element(e => e.Height(1).Background(Colors.Grey.Lighten2));
-
-                    // Agrupar por sección
                     var grupos = orina.Rows.GroupBy(r => r.Seccion);
                     foreach (var grupo in grupos)
                     {
                         col.Item().PaddingTop(8).Text(grupo.Key).FontSize(8.5f).SemiBold().FontColor(Colors.Grey.Darken4);
                         col.Item().Table(table =>
                         {
-                            table.ColumnsDefinition(c =>
-                            {
-                                c.RelativeColumn(1.4f); // Determinación
-                                c.RelativeColumn(0.8f); // Valor
-                                c.RelativeColumn(1.2f); // Referencia (más ancha y alineada a la derecha)
-                            });
-
+                            table.ColumnsDefinition(c => { c.RelativeColumn(1.4f); c.RelativeColumn(0.8f); c.RelativeColumn(1.2f); });
                             void HeaderCellO(string t, bool alignRight = false)
                             {
                                 var cell = table.Cell();
@@ -323,7 +268,6 @@ public class PdfReportService : IPdfReportService
                             HeaderCellO("Determinación");
                             HeaderCellO("Valor");
                             HeaderCellO(tituloRefO, true);
-
                             foreach (var r in grupo)
                             {
                                 var refValueBase = esCaninoO ? r.RefCaninos : esFelinoO ? r.RefFelinos : r.RefCaninos;
@@ -333,14 +277,8 @@ public class PdfReportService : IPdfReportService
                             }
                         });
                     }
-
                     if (!string.IsNullOrWhiteSpace(orina.Observaciones))
-                    {
-                        col.Item().PaddingTop(6).Element(box =>
-                        {
-                            box.Background(Colors.Grey.Lighten4).Padding(6).Text("Obs: " + orina.Observaciones).FontSize(8f);
-                        });
-                    }
+                        col.Item().PaddingTop(6).Element(box => box.Background(Colors.Grey.Lighten4).Padding(6).Text("Obs: " + orina.Observaciones).FontSize(8f));
                 }
 
                 // Frotis
@@ -350,15 +288,10 @@ public class PdfReportService : IPdfReportService
                         col.Item().PaddingTop(14).Element(e => e.Height(1).Background(Colors.Grey.Lighten2));
                     col.Item().PaddingTop(10).Element(e => e.AlignCenter().Text(t => t.Span("FROTIS").FontSize(10).SemiBold()));
                     col.Item().Element(e => e.Height(1).Background(Colors.Grey.Lighten2));
-
                     col.Item().Table(table =>
                     {
                         table.ColumnsDefinition(c => { c.RelativeColumn(1.3f); c.RelativeColumn(); });
-                        void HeaderCellF(string t)
-                        {
-                            var cell = table.Cell();
-                            cell.Element(x => x.Background(Colors.Grey.Lighten3).Padding(3).Text(t).FontSize(8).SemiBold());
-                        }
+                        void HeaderCellF(string t) { var cell = table.Cell(); cell.Element(x => x.Background(Colors.Grey.Lighten3).Padding(3).Text(t).FontSize(8).SemiBold()); }
                         HeaderCellF("Determinación");
                         HeaderCellF("Resultado");
                         table.Cell().Element(c => c.Padding(3).Text("Observacion Directa de Frotis para parasitos Sanguineos").FontSize(8.1f).SemiBold());
@@ -373,19 +306,10 @@ public class PdfReportService : IPdfReportService
                         col.Item().PaddingTop(14).Element(e => e.Height(1).Background(Colors.Grey.Lighten2));
                     col.Item().PaddingTop(10).Element(e => e.AlignCenter().Text(t => t.Span("COPROPARASITOLÓGICO").FontSize(10).SemiBold()));
                     col.Item().Element(e => e.Height(1).Background(Colors.Grey.Lighten2));
-
                     col.Item().Table(table =>
                     {
-                        table.ColumnsDefinition(c =>
-                        {
-                            c.RelativeColumn(1.0f); // determinación (antes 1.2f)
-                            c.RelativeColumn();     // resultado
-                        });
-                        void HeaderCellC(string t)
-                        {
-                            var cell = table.Cell();
-                            cell.Element(x => x.Background(Colors.Grey.Lighten3).Padding(3).Text(t).FontSize(8).SemiBold());
-                        }
+                        table.ColumnsDefinition(c => { c.RelativeColumn(1.0f); c.RelativeColumn(); });
+                        void HeaderCellC(string t) { var cell = table.Cell(); cell.Element(x => x.Background(Colors.Grey.Lighten3).Padding(3).Text(t).FontSize(8).SemiBold()); }
                         HeaderCellC("Determinación");
                         HeaderCellC("Resultado");
                         foreach (var r in copro.Rows)
@@ -394,29 +318,21 @@ public class PdfReportService : IPdfReportService
                             table.Cell().Element(c => c.Padding(3).Text(r.Resultado ?? string.Empty).FontSize(8f));
                         }
                     });
-
                     if (!string.IsNullOrWhiteSpace(copro.Observaciones))
-                    {
-                        col.Item().PaddingTop(6).Element(box =>
-                        {
-                            box.Background(Colors.Grey.Lighten4).Padding(6).Text("Obs: " + copro.Observaciones).FontSize(8f);
-                        });
-                    }
+                        col.Item().PaddingTop(6).Element(box => box.Background(Colors.Grey.Lighten4).Padding(6).Text("Obs: " + copro.Observaciones).FontSize(8f));
                 }
 
-                // === Secciones nuevas: Ehrlichiosis y Raspaje ===
+                // Ehrlichiosis
                 if (ehrlichiosis != null && ehrlichiosis.Rows.Any(r => !string.IsNullOrWhiteSpace(r.Resultado)))
                 {
                     if (hemograma != null || quimica != null || orina != null || hemostasia != null || frotis != null || copro != null)
                         col.Item().PaddingTop(14).Element(e => e.Height(1).Background(Colors.Grey.Lighten2));
                     col.Item().PaddingTop(10).Element(e => e.AlignCenter().Text(t => t.Span("EHRLICHIOSIS CANINA (IC)").FontSize(10).SemiBold()));
                     col.Item().Element(e => e.Height(1).Background(Colors.Grey.Lighten2));
-
                     col.Item().Table(table =>
                     {
                         table.ColumnsDefinition(c => { c.RelativeColumn(1.3f); c.RelativeColumn(); });
-                        void HeaderCellE(string t)
-                        { var cell = table.Cell(); cell.Element(x => x.Background(Colors.Grey.Lighten3).Padding(3).Text(t).FontSize(8).SemiBold()); }
+                        void HeaderCellE(string t) { var cell = table.Cell(); cell.Element(x => x.Background(Colors.Grey.Lighten3).Padding(3).Text(t).FontSize(8).SemiBold()); }
                         HeaderCellE("Técnica");
                         HeaderCellE("Resultado");
                         foreach (var r in ehrlichiosis.Rows.Where(r => !string.IsNullOrWhiteSpace(r.Resultado)))
@@ -425,28 +341,21 @@ public class PdfReportService : IPdfReportService
                             table.Cell().Element(c => c.Padding(3).Text(r.Resultado!).FontSize(8f));
                         }
                     });
-
                     if (!string.IsNullOrWhiteSpace(ehrlichiosis.Observaciones))
-                    {
-                        col.Item().PaddingTop(6).Element(box =>
-                        {
-                            box.Background(Colors.Grey.Lighten4).Padding(6).Text("Obs: " + ehrlichiosis.Observaciones).FontSize(8f);
-                        });
-                    }
+                        col.Item().PaddingTop(6).Element(box => box.Background(Colors.Grey.Lighten4).Padding(6).Text("Obs: " + ehrlichiosis.Observaciones).FontSize(8f));
                 }
 
+                // Raspaje
                 if (raspaje != null && raspaje.Rows.Any(r => !string.IsNullOrWhiteSpace(r.Resultado)))
                 {
                     if (hemograma != null || quimica != null || orina != null || hemostasia != null || frotis != null || copro != null || ehrlichiosis != null)
                         col.Item().PaddingTop(14).Element(e => e.Height(1).Background(Colors.Grey.Lighten2));
                     col.Item().PaddingTop(10).Element(e => e.AlignCenter().Text(t => t.Span("RASPAJE DE PIEL").FontSize(10).SemiBold()));
                     col.Item().Element(e => e.Height(1).Background(Colors.Grey.Lighten2));
-
                     col.Item().Table(table =>
                     {
                         table.ColumnsDefinition(c => { c.RelativeColumn(1.2f); c.RelativeColumn(); });
-                        void HeaderCellR(string t)
-                        { var cell = table.Cell(); cell.Element(x => x.Background(Colors.Grey.Lighten3).Padding(3).Text(t).FontSize(8).SemiBold()); }
+                        void HeaderCellR(string t) { var cell = table.Cell(); cell.Element(x => x.Background(Colors.Grey.Lighten3).Padding(3).Text(t).FontSize(8).SemiBold()); }
                         HeaderCellR("Determinación");
                         HeaderCellR("Resultado");
                         foreach (var r in raspaje.Rows.Where(r => !string.IsNullOrWhiteSpace(r.Resultado)))
@@ -455,33 +364,19 @@ public class PdfReportService : IPdfReportService
                             table.Cell().Element(c => c.Padding(3).Text(r.Resultado!).FontSize(8f));
                         }
                     });
-
                     if (!string.IsNullOrWhiteSpace(raspaje.Observaciones))
-                    {
-                        col.Item().PaddingTop(6).Element(box =>
-                        {
-                            box.Background(Colors.Grey.Lighten4).Padding(6).Text("Obs: " + raspaje.Observaciones).FontSize(8f);
-                        });
-                    }
+                        col.Item().PaddingTop(6).Element(box => box.Background(Colors.Grey.Lighten4).Padding(6).Text("Obs: " + raspaje.Observaciones).FontSize(8f));
                 }
 
-                // Recuento de Reticulocitos
+                // Reticulocitos
                 if (reticulocitos != null && reticulocitos.Rows.Any(r => r.Valor.HasValue))
                 {
-                    // Separador si Hemograma no estuvo presente (para mantener consistencia con otras secciones)
-                    col.Item().PaddingTop( hemograma != null ? 10 : 14 ).Element(e => e.AlignCenter().Text(t => t.Span("RECUENTO DE RETICULOCITOS").FontSize(10).SemiBold()));
+                    col.Item().PaddingTop(hemograma != null ? 10 : 14).Element(e => e.AlignCenter().Text(t => t.Span("RECUENTO DE RETICULOCITOS").FontSize(10).SemiBold()));
                     col.Item().Element(e => e.Height(1).Background(Colors.Grey.Lighten2));
-
                     bool anyRef = reticulocitos.Rows.Any(r => !string.IsNullOrWhiteSpace(r.Referencia));
                     col.Item().Table(table =>
                     {
-                        table.ColumnsDefinition(c =>
-                        {
-                            c.RelativeColumn(1.4f); // Determinación
-                            c.ConstantColumn(60);   // Valor
-                            if (anyRef) c.RelativeColumn(1.2f); // Referencia (más ancha y alineada a la derecha)
-                        });
-
+                        table.ColumnsDefinition(c => { c.RelativeColumn(1.4f); c.ConstantColumn(60); if (anyRef) c.RelativeColumn(1.2f); });
                         void HeaderCellReti(string t, bool alignRight = false)
                         {
                             var cell = table.Cell();
@@ -493,7 +388,6 @@ public class PdfReportService : IPdfReportService
                         HeaderCellReti("Determinación");
                         HeaderCellReti("Valor");
                         if (anyRef) HeaderCellReti("Valores de Referencia", true);
-
                         foreach (var r in reticulocitos.Rows.Where(r => r.Valor.HasValue))
                         {
                             table.Cell().Element(c => c.Padding(3).Text(r.Determinacion).FontSize(8.2f));
@@ -501,14 +395,8 @@ public class PdfReportService : IPdfReportService
                             if (anyRef) table.Cell().Element(c => c.Padding(3).Text(r.Referencia ?? string.Empty).FontSize(8f).FontColor(Colors.Grey.Darken2).AlignRight());
                         }
                     });
-
                     if (!string.IsNullOrWhiteSpace(reticulocitos.Observaciones))
-                    {
-                        col.Item().PaddingTop(6).Element(b =>
-                        {
-                            b.Background(Colors.Grey.Lighten4).Padding(6).Text("Obs: " + reticulocitos.Observaciones).FontSize(8f);
-                        });
-                    }
+                        col.Item().PaddingTop(6).Element(b => b.Background(Colors.Grey.Lighten4).Padding(6).Text("Obs: " + reticulocitos.Observaciones).FontSize(8f));
                 }
 
                 // Proteinuria / Creatininuria (UPC)
@@ -517,12 +405,9 @@ public class PdfReportService : IPdfReportService
                     col.Item().PaddingTop(14).Element(e => e.Height(1).Background(Colors.Grey.Lighten2));
                     col.Item().PaddingTop(10).Element(e => e.AlignCenter().Text(t => t.Span("RELACIÓN PROTEINURIA / CREATININURIA (UPC)").FontSize(10).SemiBold()));
                     col.Item().Element(e => e.Height(1).Background(Colors.Grey.Lighten2));
-
-                    // Detectar especie desde la línea 2 del encabezado (Edad / Especie / ...)
                     var especieHeader = (data.EdadEspecieRazaSexo ?? string.Empty).ToLowerInvariant();
                     bool espCan = especieHeader.Contains("can");
                     bool espFel = especieHeader.Contains("fel");
-
                     string GetUpcRef(double? valor)
                     {
                         if (!valor.HasValue) return "";
@@ -538,20 +423,13 @@ public class PdfReportService : IPdfReportService
                             if (valor <= 0.4) return "Dudoso (0.2-0.4)";
                             return "Proteinuria (>0.4)";
                         }
-                        // Default canino
                         if (valor < 0.2) return "Normal (<0.2)";
                         if (valor <= 0.5) return "Dudoso (0.2-0.5)";
                         return "Proteinuria (>0.5)";
                     }
-
                     col.Item().Table(table =>
                     {
-                        table.ColumnsDefinition(c =>
-                        {
-                            c.RelativeColumn(1.4f);   // Determinación (antes 1.8f)
-                            c.ConstantColumn(60);      // Valor (antes 70)
-                            c.RelativeColumn(1.2f);   // Valores de Referencia (alineada a la derecha)
-                        });
+                        table.ColumnsDefinition(c => { c.RelativeColumn(1.4f); c.ConstantColumn(60); c.RelativeColumn(1.2f); });
                         void HeaderCellP(string t, bool alignRight = false)
                         {
                             var cell = table.Cell();
@@ -563,7 +441,6 @@ public class PdfReportService : IPdfReportService
                         HeaderCellP("Determinación");
                         HeaderCellP("Valor");
                         HeaderCellP("Valores de Referencia", true);
-
                         foreach (var r in proteinuria.Rows.Where(r => r.Valor.HasValue))
                         {
                             string refCell = r.Referencia;
@@ -574,14 +451,8 @@ public class PdfReportService : IPdfReportService
                             table.Cell().Element(c => c.Padding(3).Text(refCell ?? string.Empty).FontSize(8f).FontColor(Colors.Grey.Darken2).AlignRight());
                         }
                     });
-
                     if (!string.IsNullOrWhiteSpace(proteinuria.Observaciones))
-                    {
-                        col.Item().PaddingTop(6).Element(b =>
-                        {
-                            b.Background(Colors.Grey.Lighten4).Padding(6).Text("Obs: " + proteinuria.Observaciones).FontSize(8f);
-                        });
-                    }
+                        col.Item().PaddingTop(6).Element(b => b.Background(Colors.Grey.Lighten4).Padding(6).Text("Obs: " + proteinuria.Observaciones).FontSize(8f));
                 }
 
                 // VIF / VILEF
@@ -590,18 +461,14 @@ public class PdfReportService : IPdfReportService
                     col.Item().PaddingTop(14).Element(e => e.Height(1).Background(Colors.Grey.Lighten2));
                     col.Item().PaddingTop(10).Element(e => e.AlignCenter().Text(t => t.Span("VIF / VILEF").FontSize(10).SemiBold()));
                     col.Item().Element(e => e.Height(1).Background(Colors.Grey.Lighten2));
-
                     var vifText = vifvilef.VifResultado != null && vifvilef.VifResultado != "Sin seleccion" ? vifvilef.VifResultado : string.Empty;
                     var vilefText = vifvilef.VilefResultado != null && vifvilef.VilefResultado != "Sin seleccion" ? vifvilef.VilefResultado : string.Empty;
-
                     col.Item().Table(table =>
                     {
                         table.ColumnsDefinition(c => { c.RelativeColumn(1.5f); c.RelativeColumn(); });
-                        void HeaderCellVV(string t)
-                        { var cell = table.Cell(); cell.Element(x => x.Background(Colors.Grey.Lighten3).Padding(3).Text(t).FontSize(8).SemiBold()); }
+                        void HeaderCellVV(string t) { var cell = table.Cell(); cell.Element(x => x.Background(Colors.Grey.Lighten3).Padding(3).Text(t).FontSize(8).SemiBold()); }
                         HeaderCellVV("Técnica empleada");
                         HeaderCellVV("Resultados");
-
                         var tecnica = "Inmunocromatografía (IC) Speed VIF / VILEF";
                         table.Cell().Element(c => c.Padding(3).Text(tecnica).FontSize(8.1f));
                         table.Cell().Element(c => c.Padding(3).Text(txt =>
@@ -611,14 +478,8 @@ public class PdfReportService : IPdfReportService
                             if (!string.IsNullOrWhiteSpace(vilefText)) txt.Span($"VILEF: {vilefText}").FontSize(8f);
                         }));
                     });
-
                     if (!string.IsNullOrWhiteSpace(vifvilef.Observaciones))
-                    {
-                        col.Item().PaddingTop(6).Element(b =>
-                        {
-                            b.Background(Colors.Grey.Lighten4).Padding(6).Text("Obs: " + vifvilef.Observaciones).FontSize(8f);
-                        });
-                    }
+                        col.Item().PaddingTop(6).Element(b => b.Background(Colors.Grey.Lighten4).Padding(6).Text("Obs: " + vifvilef.Observaciones).FontSize(8f));
                 }
 
                 // Ionograma
@@ -627,20 +488,12 @@ public class PdfReportService : IPdfReportService
                     col.Item().PaddingTop(14).Element(e => e.Height(1).Background(Colors.Grey.Lighten2));
                     col.Item().PaddingTop(10).Element(e => e.AlignCenter().Text(t => t.Span("IONOGRAMA").FontSize(10).SemiBold()));
                     col.Item().Element(e => e.Height(1).Background(Colors.Grey.Lighten2));
-
                     var especieNormI = (ionograma.Especie ?? "").Trim().ToLowerInvariant();
                     bool esCanI = especieNormI.Contains("can");
                     bool esFelI = especieNormI.Contains("fel");
-                    var tituloRefI = esCanI ? "Valores de Referencia (Canino)" : esFelI ? "Valores de Referencia (Felino)" : "Valores de Referencia";
-
                     col.Item().Table(table =>
                     {
-                        table.ColumnsDefinition(c =>
-                        {
-                            c.RelativeColumn(1.4f); // Determinación
-                            c.ConstantColumn(60);   // Valor
-                            c.RelativeColumn(1.2f); // Valores de Referencia (alineada a la derecha)
-                        });
+                        table.ColumnsDefinition(c => { c.RelativeColumn(1.4f); c.ConstantColumn(60); c.RelativeColumn(1.2f); });
                         void HeaderCellI(string t, bool alignRight = false)
                         {
                             var cell = table.Cell();
@@ -652,7 +505,6 @@ public class PdfReportService : IPdfReportService
                         HeaderCellI("Determinación");
                         HeaderCellI("Valor");
                         HeaderCellI("Valores de Referencia", true);
-
                         foreach (var r in ionograma.Rows.Where(r => r.Valor.HasValue))
                         {
                             var refBase = esCanI ? r.RefCanino : esFelI ? r.RefFelino : r.RefCanino;
@@ -662,12 +514,10 @@ public class PdfReportService : IPdfReportService
                         }
                     });
                     if (!string.IsNullOrWhiteSpace(ionograma.Observaciones))
-                    {
                         col.Item().PaddingTop(6).Element(b => b.Background(Colors.Grey.Lighten4).Padding(6).Text("Obs: " + ionograma.Observaciones).FontSize(8f));
-                    }
                 }
 
-                // Estudio Citológico
+                // Estudio citológico
                 if (citologico != null && citologico.Rows.Any(r => !string.IsNullOrWhiteSpace(r.Resultado)))
                 {
                     col.Item().PaddingTop(14).Element(e => e.Height(1).Background(Colors.Grey.Lighten2));
@@ -686,18 +536,15 @@ public class PdfReportService : IPdfReportService
                         }
                     });
                     if (!string.IsNullOrWhiteSpace(citologico.Observaciones))
-                    {
                         col.Item().PaddingTop(6).Element(b => b.Background(Colors.Grey.Lighten4).Padding(6).Text("Obs: " + citologico.Observaciones).FontSize(8f));
-                    }
                 }
 
-                // Líquido de Punción
+                // Líquido de punción
                 if (liquidoPuncion != null && (liquidoPuncion.TextoRows.Any(r => !string.IsNullOrWhiteSpace(r.Resultado)) || liquidoPuncion.BioqRows.Any(r => r.Valor.HasValue)))
                 {
                     col.Item().PaddingTop(14).Element(e => e.Height(1).Background(Colors.Grey.Lighten2));
                     col.Item().PaddingTop(10).Element(e => e.AlignCenter().Text(t => t.Span("LÍQUIDO DE PUNCIÓN").FontSize(10).SemiBold()));
                     col.Item().Element(e => e.Height(1).Background(Colors.Grey.Lighten2));
-
                     if (liquidoPuncion.TextoRows.Any(r => !string.IsNullOrWhiteSpace(r.Resultado)))
                     {
                         col.Item().Table(table =>
@@ -712,10 +559,8 @@ public class PdfReportService : IPdfReportService
                             }
                         });
                     }
-
                     if (liquidoPuncion.BioqRows.Any(r => r.Valor.HasValue))
                     {
-                        // (Título eliminado para evitar redundancia)
                         col.Item().Table(table =>
                         {
                             table.ColumnsDefinition(c => { c.RelativeColumn(1.5f); c.RelativeColumn(1.2f); c.RelativeColumn(); });
@@ -736,43 +581,36 @@ public class PdfReportService : IPdfReportService
                             }
                         });
                     }
-
                     if (!string.IsNullOrWhiteSpace(liquidoPuncion.Observaciones))
-                    {
                         col.Item().PaddingTop(6).Element(b => b.Background(Colors.Grey.Lighten4).Padding(6).Text("Obs: " + liquidoPuncion.Observaciones).FontSize(8f));
-                    }
                 }
 
-                // Línea final separadora siempre al terminar las secciones
+                // Línea final separadora
                 col.Item().PaddingTop(16).Element(e => e.Height(1).Background(Colors.Grey.Lighten2));
 
-                // Firma digital debajo de la línea final (sin repetir el nombre, ya está en la imagen)
+                // Firma + aclaración
                 if (signatureImageBytes is { Length: > 0 })
                 {
-                    col.Item().PaddingTop(6).AlignRight().Width(150).Element(e =>
+                    col.Item().PaddingTop(6).AlignRight().Width(170).Element(e =>
                     {
-                        e.Height(65).Image(signatureImageBytes).FitHeight();
+                        e.Column(c =>
+                        {
+                            c.Item().AlignCenter().Element(img => img.Height(65).Image(signatureImageBytes).FitHeight());
+                            if (!string.IsNullOrWhiteSpace(data.Bioquimico))
+                                c.Item().PaddingTop(2).AlignCenter().Text(t => t.Span(data.Bioquimico).FontSize(8).FontColor(Colors.Grey.Darken3));
+                        });
                     });
                 }
             });
-            // Footer alineado a la derecha con conteo de páginas (formato correcto QuestPDF)
-            page.Footer()
-                .AlignRight()
-                .Text(text =>
-                {
-                    text.Span("Página ")
-                        .FontSize(8)
-                        .FontColor(Colors.Grey.Darken2);
-                    text.CurrentPageNumber()
-                        .FontSize(8)
-                        .FontColor(Colors.Grey.Darken2);
-                    text.Span(" de ")
-                        .FontSize(8)
-                        .FontColor(Colors.Grey.Darken2);
-                    text.TotalPages()
-                        .FontSize(8)
-                        .FontColor(Colors.Grey.Darken2);
-                });
+
+            // Footer
+            page.Footer().AlignRight().Text(text =>
+            {
+                text.Span("Página ").FontSize(8).FontColor(Colors.Grey.Darken2);
+                text.CurrentPageNumber().FontSize(8).FontColor(Colors.Grey.Darken2);
+                text.Span(" de ").FontSize(8).FontColor(Colors.Grey.Darken2);
+                text.TotalPages().FontSize(8).FontColor(Colors.Grey.Darken2);
+            });
         });
     }
 
@@ -782,20 +620,13 @@ public class PdfReportService : IPdfReportService
         {
             if (headerImageBytes is { Length: > 0 })
             {
-                try { h.Image(headerImageBytes).FitWidth(); return; }
-                catch (Exception)
-                {
-                    // Silenciosamente ignorar error de imagen
-                }
+                try { h.AlignCenter().Image(headerImageBytes).FitWidth(); return; }
+                catch (Exception) { }
             }
         });
     }
 
-    private void RenderHeaderImage(IContainer container, byte[]? headerImageBytes)
-    {
-        // Mantener para compatibilidad si se usa en otros métodos (ya no se invoca en full)
-        RenderLogoOnce(container, headerImageBytes);
-    }
+    private void RenderHeaderImage(IContainer container, byte[]? headerImageBytes) => RenderLogoOnce(container, headerImageBytes);
 
     public byte[] GenerateBasicHeaderPdfBytes(byte[]? headerImageBytes)
         => Document.Create(c => ComposeSimple(c, headerImageBytes)).GeneratePdf();
